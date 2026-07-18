@@ -26,11 +26,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             PitchKitTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    audioTuner.startListening({ result ->
+                    val tuningResult = PitchConverter.getNoteFromFrequency(136.00f/*floatBuffer.lastOrNull() ?: 130.81f*/)
+                    Log.d("AudioTuner", tuningResult?.noteName + " " + tuningResult?.octave + " " + tuningResult?.centsDeviation)
+                    /*audioTuner.startListening({ result ->
                         runOnUiThread {
                             Toast.makeText(this, result?.noteName ?: "no note found", Toast.LENGTH_SHORT).show()
                         }
-                    })
+                    })*/
                 }
             }
         }
@@ -101,7 +103,7 @@ class AudioTuner {
                 }
                 // -> HERE IS WHERE YOU CALL YOUR YIN OR PITCH DETECTION ALGORITHM <-
                 // For now, we'll just use the last sample to simulate a result (not accurate)
-                tuningResult = PitchConverter.getNoteFromFrequency(floatBuffer.lastOrNull() ?: 0f)
+                tuningResult = PitchConverter.getNoteFromFrequency(440f/*floatBuffer.lastOrNull() ?: 130.81f*/)
                 Log.d("AudioTuner", tuningResult?.noteName ?: "no note found")
                 updatePitch(tuningResult)
             }
