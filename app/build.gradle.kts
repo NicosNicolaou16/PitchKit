@@ -5,6 +5,7 @@ plugins {
 
 android {
     namespace = "com.nicos.pitchkit"
+    buildToolsVersion = "37.0.0"
     compileSdk {
         version = release(37)
     }
@@ -22,7 +23,7 @@ android {
     buildTypes {
         release {
             optimization {
-                enable = false
+                enable = true
             }
         }
     }
@@ -33,7 +34,6 @@ android {
     buildFeatures {
         compose = true
     }
-    buildToolsVersion = "37.0.0"
 }
 
 dependencies {
