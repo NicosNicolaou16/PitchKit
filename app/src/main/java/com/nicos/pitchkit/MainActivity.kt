@@ -1,26 +1,17 @@
 package com.nicos.pitchkit
 
-import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
-import com.nicos.pitchkit.ui.theme.PitchKitTheme
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.log2
-import kotlin.math.roundToInt
-import kotlin.math.sin
-import kotlin.math.sqrt
 import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import android.os.Bundle
+import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -28,9 +19,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import com.nicos.pitchkit.ui.theme.PitchKitTheme
+import kotlin.math.cos
+import kotlin.math.hypot
+import kotlin.math.ln
+import kotlin.math.roundToInt
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 class MainActivity : ComponentActivity() {
-    //private val audioTuner = AudioTuner()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,18 +68,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                //val tuningResult = PitchConverter.getNoteFromFrequency(136.00f/*floatBuffer.lastOrNull() ?: 130.81f*/)
-                /* PureKotlinChordDetector().startListening {
-                     runOnUiThread {
-                         Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
-                     }
-                 }*/
-                //Log.d("AudioTuner", tuningResult?.noteName + " " + tuningResult?.octave + " " + tuningResult?.centsDeviation)
-                /*audioTuner.startListening({ result ->
-                    runOnUiThread {
-                        Toast.makeText(this, result?.noteName ?: "no note found", Toast.LENGTH_SHORT).show()
-                    }
-                })*/
             }
         }
     }
@@ -194,8 +180,8 @@ object FFT {
         var len = 2
         while (len <= n) {
             val ang = -2.0 * Math.PI / len          // angle step for this stage
-            val wRe = Math.cos(ang)                 // twiddle base (real)
-            val wIm = Math.sin(ang)                 // twiddle base (imaginary)
+            val wRe = cos(ang)                 // twiddle base (real)
+            val wIm = sin(ang)                 // twiddle base (imaginary)
             var i = 0
             while (i < n) {
                 // cur = current twiddle factor, starts at 1 (angle 0) and rotates.
@@ -241,7 +227,7 @@ object FFT {
         // frequencies at the edges ("spectral leakage"). Multiplying by a window
         // that tapers to zero at both ends greatly reduces this artifact.
         for (i in 0 until n) {
-            val w = 0.5 * (1 - Math.cos(2 * Math.PI * i / (n - 1)))  // Hann curve
+            val w = 0.5 * (1 - cos(2 * Math.PI * i / (n - 1)))  // Hann curve
             re[i] = samples[i] * w
         }
 
@@ -251,7 +237,7 @@ object FFT {
         // hypot() computes that safely without overflow.
         val mags = DoubleArray(n / 2)
         for (i in 0 until n / 2) {
-            mags[i] = Math.hypot(re[i], im[i])
+            mags[i] = hypot(re[i], im[i])
         }
         return mags
     }
@@ -330,8 +316,8 @@ class YinPitchDetector(
         // Edge cases where a neighbor doesn't exist: just pick the smaller point.
         if (x0 == tau) return if (yin[tau] <= yin[x2]) tau.toDouble() else x2.toDouble()
         if (x2 == tau) return if (yin[tau] <= yin[x0]) tau.toDouble() else x0.toDouble()
-        val s0 = yin[x0];
-        val s1 = yin[tau];
+        val s0 = yin[x0]
+        val s1 = yin[tau]
         val s2 = yin[x2]
         // Standard vertex-of-parabola formula. denom==0 means flat → no shift.
         val denom = 2 * (2 * s1 - s2 - s0)
@@ -371,7 +357,7 @@ object NoteMapper {
         // ×12 converts octaves to semitones; +69 shifts to MIDI numbering.
         val midi = 69 + 12 * log2((freq / 440.0))
 
-        val nearest = Math.round(midi).toInt()      // closest actual note
+        val nearest = midi.roundToInt()      // closest actual note
         // The leftover fraction, ×100, is the tuning error in cents
         // (100 cents = 1 semitone). This drives the tuner needle.
         val cents = (midi - nearest) * 100.0
@@ -386,7 +372,7 @@ object NoteMapper {
     }
 
     // Kotlin's stdlib has log2, but this makes the base-change explicit.
-    private fun log2(x: Double) = Math.log(x) / Math.log(2.0)
+    private fun log2(x: Double) = ln(x) / ln(2.0)
 }
 
 class ChordDetector(private val sampleRate: Int) {
@@ -446,8 +432,8 @@ class ChordDetector(private val sampleRate: Int) {
             // Ignore sub-bass rumble and very high content — outside guitar's useful range.
             if (freq < 70 || freq > 5000) continue
             // Which of the 12 pitch classes does this frequency belong to?
-            val midi = 69 + 12 * (Math.log(freq / 440.0) / Math.log(2.0))
-            val pc = ((Math.round(midi).toInt() % 12) + 12) % 12
+            val midi = 69 + 12 * (ln(freq / 440.0) / ln(2.0))
+            val pc = ((midi.roundToInt() % 12) + 12) % 12
             // Add this bin's strength into that pitch class's bucket.
             chroma[pc] += mags[bin]
         }
@@ -508,7 +494,7 @@ class ChordDetector(private val sampleRate: Int) {
 }
 
 class TunerEngine(
-    private val sampleRate: Int = 44100,
+    sampleRate: Int = 44100,
     bufferSize: Int = 8192,
     private val rmsGate: Double = 0.1   // was 0.01. Higher = less sensitive.
 ) {
@@ -536,7 +522,7 @@ class TunerEngine(
             // ---- Energy gate ----
             // RMS = root-mean-square = perceived loudness of the buffer.
             // Below a small threshold we treat it as silence and skip processing.
-            val rms = Math.sqrt(buf.map { (it * it).toDouble() }.average())
+            val rms = sqrt(buf.map { (it * it).toDouble() }.average())
             // Only proceed if the sound is clearly above the gate.
             if (rms < rmsGate) {
                 onResult(Result.Silence); return@start
