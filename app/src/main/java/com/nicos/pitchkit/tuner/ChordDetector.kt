@@ -1,12 +1,5 @@
 package com.nicos.pitchkit.tuner
 
-import kotlin.collections.get
-import kotlin.compareTo
-import kotlin.div
-import kotlin.math.ln
-import kotlin.math.roundToInt
-import kotlin.times
-
 class ChordDetector(private val sampleRate: Int) {
 
     // A chord template = its pitch classes, ignoring octave. pitches[0] is the ROOT.

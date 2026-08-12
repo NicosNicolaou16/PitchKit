@@ -64,7 +64,7 @@ class TunerEngine(
 
             trySend(smooth(result))
         }
-        awaitClose { capture.stop() }
+        awaitClose { stop() }
     }
         .buffer(capacity = Channel.CONFLATED)  // always keep the LATEST frame, drop stale ones
         .flowOn(Dispatchers.IO)
