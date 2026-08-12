@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
                         runOnUiThread {
                             resultNote = when (result) {
                                 is TunerEngine.Result.Note ->
-                                    "${result.name}  (${"%.0f".format(result.cents)}¢)"
+                                    "${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
 
                                 is TunerEngine.Result.Chord -> result.name
                                 TunerEngine.Result.Silence -> "—"

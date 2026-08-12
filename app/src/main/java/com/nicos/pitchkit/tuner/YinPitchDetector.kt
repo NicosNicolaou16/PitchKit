@@ -5,33 +5,26 @@ class YinPitchDetector(
     private val threshold: Double = 0.15   // lower = stricter; 0.10–0.15 works well for guitar
 ) {
     /**
-     * Detects the fundamental frequency of a SINGLE note.
-     * YIN works in the time domain by finding the period at which the signal
-     * most closely repeats itself. It resists the "octave errors" that plague
-     * simple FFT peak-picking (where a harmonic is mistaken for the fundamental).
-     * Returns Hz, or -1 if no clear pitch.
+     * Detects the fundamental of a SINGLE note. YIN works in the time domain,
+     * finding the period at which the signal best repeats itself — this resists the
+     * octave errors that plague simple FFT peak-picking. Returns Hz, or -1.
      */
     fun detect(buffer: FloatArray): Float {
-        val tau = buffer.size / 2     // max lag we test (tau = "period" candidate)
+        val tau = buffer.size / 2
         val yin = DoubleArray(tau)
 
-        // ---- STEP 1: Difference function ----
-        // For each candidate period t, measure how DIFFERENT the signal is from
-        // itself shifted by t samples. If the signal repeats every t samples
-        // (i.e. t is the true period), this difference is near zero.
+        // 1. Difference function: how different is the signal from itself shifted by t?
         for (t in 1 until tau) {
             var sum = 0.0
             for (i in 0 until tau) {
                 val delta = buffer[i] - buffer[i + t]
-                sum += delta * delta     // squared difference
+                sum += delta * delta
             }
             yin[t] = sum
         }
 
-        // ---- STEP 2: Cumulative mean normalization ----
-        // The raw difference is always ~0 at t=0, which we must ignore. This step
-        // normalizes each value against the running average so we can use a fixed
-        // threshold, and avoids picking the trivial t=0 dip.
+        // 2. Cumulative mean normalization: lets us use a fixed threshold and avoids
+        //    the trivial t=0 dip.
         yin[0] = 1.0
         var runningSum = 0.0
         for (t in 1 until tau) {
@@ -39,30 +32,22 @@ class YinPitchDetector(
             yin[t] *= t / runningSum
         }
 
-        // ---- STEP 3: Absolute threshold ----
-        // Find the FIRST period where the normalized difference dips below the
-        // threshold — this is the fundamental (not a harmonic). We then keep
-        // descending into that dip to find its true lowest point.
+        // 3. First dip below threshold = the fundamental (not a harmonic).
         var tauEstimate = -1
         var t = 2
         while (t < tau) {
-            if (yin[t] < threshold) {
-                // walk down to the local minimum of this valley
+            if (yin[t] < 0.15) {
                 while (t + 1 < tau && yin[t + 1] < yin[t]) t++
                 tauEstimate = t
                 break
             }
             t++
         }
-        if (tauEstimate == -1) return -1f   // no repeating pattern found = no pitch
+        if (tauEstimate == -1) return -1f
 
-        // ---- STEP 4: Parabolic interpolation ----
-        // The true period rarely lands exactly on an integer sample. Fitting a
-        // parabola through the dip and its two neighbors gives sub-sample accuracy,
-        // which matters a lot for showing tuning in cents.
+        // 4. Parabolic interpolation around the dip for SUB-SAMPLE period accuracy.
+        //    This is what makes the cents reading precise rather than quantized.
         val betterTau = parabolicInterp(yin, tauEstimate)
-
-        // frequency = sampleRate / period
         return (sampleRate / betterTau).toFloat()
     }
 

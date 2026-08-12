@@ -34,7 +34,9 @@ class TunerEngine(
             val rms = sqrt(buf.map { (it * it).toDouble() }.average())
             // Only proceed if the sound is clearly above the gate.
             if (rms < rmsGate) {
-                onResult(Result.Silence); return@start
+                chordDetector.reset()        // clear hysteresis so the next chord starts clean
+                onResult(Result.Silence)
+                return@start
             }
 
             // ---- Decide: single note or chord? ----
