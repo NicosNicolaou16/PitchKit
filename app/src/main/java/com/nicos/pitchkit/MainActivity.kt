@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,12 +28,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             PitchKitTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val engine = TunerEngine(
-                        rmsGate = 0.02        // ignore quiet sounds  ← start here
-                    )
+                    val engine = remember {
+                        TunerEngine(
+                            rmsGate = 0.02        // ignore quiet sounds  ← start here
+                        )
+                    }
                     var resultNote by remember { mutableStateOf("-") }
-                    engine.start { result ->
-                        runOnUiThread {
+
+                    LaunchedEffect(engine) {
+                        engine.start().collect { result ->
                             resultNote = when (result) {
                                 is TunerEngine.Result.Note ->
                                     "${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
@@ -40,7 +44,6 @@ class MainActivity : ComponentActivity() {
                                 is TunerEngine.Result.Chord -> result.name
                                 TunerEngine.Result.Silence -> "—"
                             }
-                            //tunerTextView.text = text
                             Log.d("AudioTuner", resultNote)
                         }
                     }

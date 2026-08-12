@@ -1,5 +1,12 @@
 package com.nicos.pitchkit.tuner
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlin.math.sqrt
 
 class TunerEngine(
@@ -24,7 +31,7 @@ class TunerEngine(
     private var lastStable: Result = Result.Silence
     private val requiredAgreement = 2   // was 3 — easier to reach while testing
 
-    fun start(onResult: (Result) -> Unit) {
+    fun start() = callbackFlow<Result> {
         capture.start { raw ->
             val buf = preProcess(raw)   // clean up the signal first
 
@@ -35,7 +42,7 @@ class TunerEngine(
             // Only proceed if the sound is clearly above the gate.
             if (rms < rmsGate) {
                 chordDetector.reset()        // clear hysteresis so the next chord starts clean
-                onResult(Result.Silence)
+                trySend(Result.Silence)
                 return@start
             }
 
@@ -56,9 +63,12 @@ class TunerEngine(
                 chordDetector.detect(buf)?.let { Result.Chord(it.name) } ?: Result.Silence
             }
 
-            onResult(smooth(result))
+            trySend(smooth(result))
         }
+        awaitClose { capture.stop() }
     }
+        .buffer(capacity = Channel.CONFLATED)  // always keep the LATEST frame, drop stale ones
+        .flowOn(Dispatchers.IO)
 
     fun stop() = capture.stop()
 

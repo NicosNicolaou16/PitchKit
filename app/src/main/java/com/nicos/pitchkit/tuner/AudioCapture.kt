@@ -64,6 +64,7 @@ class AudioCapture(
     }
 
     fun stop() {
+        if (recorder == null) return   // already stopped — no-op
         running = false        // signals the loop to exit
         recorder?.stop()
         recorder?.release()    // release hardware — mandatory, or the mic stays locked
