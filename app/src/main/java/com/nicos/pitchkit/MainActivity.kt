@@ -91,7 +91,6 @@ class MainActivity : ComponentActivity() {
 class AudioCapture(
     val sampleRate: Int = 44100,        // 44.1 kHz — standard, captures up to ~22 kHz (Nyquist)
     val bufferSize: Int = 8192,         // MUST be power of 2 for the FFT. ~186ms of audio.
-    private val rmsGate: Double = 0.05   // was 0.01. Higher = less sensitive.
 ) {
     // Bigger buffer = better low-freq resolution (needed for
     // low E at 82 Hz) but slower updates.
