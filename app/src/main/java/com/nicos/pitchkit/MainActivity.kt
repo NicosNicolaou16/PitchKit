@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.nicos.pitchkit.tuner.GuitarTunerListener
 import com.nicos.pitchkit.tuner.TunerEngine
 import com.nicos.pitchkit.ui.theme.PitchKitTheme
 
@@ -28,38 +29,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             PitchKitTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val engine = remember {
-                        TunerEngine(
-                            rmsGate = 0.02        // ignore quiet sounds  ← start here
-                        )
-                    }
                     var resultNote by remember { mutableStateOf("-") }
 
-                    LaunchedEffect(engine) {
-                        engine.start().collect { result ->
-                            resultNote = when (result) {
-                                is TunerEngine.Result.Note ->
-                                    "${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
-
-                                is TunerEngine.Result.Chord -> result.name
-                                TunerEngine.Result.Silence -> "—"
-                            }
-                            Log.d("AudioTuner", resultNote)
-                        }
+                    GuitarTunerListener { result ->
+                        resultNote = result
                     }
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(resultNote)
-                    }
-
-                    DisposableEffect(
-                        engine
-                    ) {
-                        onDispose {
-                            engine.stop()
-                        }
                     }
                 }
             }
