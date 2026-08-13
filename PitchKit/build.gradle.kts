@@ -37,6 +37,7 @@ dependencies {
     // Coroutines
     implementation(libs.coroutine.core)
     implementation(libs.coroutine.android)
+    // Unit Test
     androidTestImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
