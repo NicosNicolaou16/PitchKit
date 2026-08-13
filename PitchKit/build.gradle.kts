@@ -24,6 +24,7 @@ android {
 }
 
 dependencies {
+    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.compose.ui)
@@ -32,7 +33,6 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.compose.runtime)
-    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.core.ktx)
     // Coroutines
     implementation(libs.coroutine.core)
