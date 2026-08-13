@@ -8,6 +8,10 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlin.math.sqrt
 
+/**
+ * @param sampleRate the microphone's sample rate.
+ * @param bufferSize the number of samples per frame.
+ * */
 internal class TunerEngine(
     sampleRate: Int = 44100,
     bufferSize: Int = 8192,
