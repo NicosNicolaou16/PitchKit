@@ -1,4 +1,4 @@
-package com.nicos.pitchkit
+package com.nicos.pitchkitexample
 
 import org.junit.Test
 

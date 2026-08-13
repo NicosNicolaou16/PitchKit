@@ -4,14 +4,14 @@ plugins {
 }
 
 android {
-    namespace = "com.nicos.pitchkit"
+    namespace = "com.nicos.pitchkitexample"
     buildToolsVersion = "37.0.0"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.nicos.pitchkit"
+        applicationId = "com.nicos.pitchkitexample"
         minSdk = 28
         targetSdk = 37
         versionCode = 1

@@ -1,4 +1,4 @@
-package com.nicos.pitchkit
+package com.nicos.pitchkitexample
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -15,7 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.nicos.pitchkit.tuner.GuitarTunerListener
-import com.nicos.pitchkit.ui.theme.PitchKitTheme
+import com.nicos.pitchkitexample.ui.theme.PitchKitTheme
 
 class MainActivity : ComponentActivity() {
 
