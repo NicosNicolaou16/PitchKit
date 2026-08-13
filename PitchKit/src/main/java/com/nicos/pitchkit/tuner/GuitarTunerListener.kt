@@ -29,7 +29,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
  * Runs the guitar tuner and streams formatted results back through [onResult].
  * Handles the microphone permission internally (including the popup and the
  * permanently-denied → Settings path), so the caller just receives result strings.
- * @param onResult called with each result.
  * @param titleText shown in the popup title.
  * @param permanentlyDeniedText shown in the popup when the user permanently
  * denied the permission.
@@ -40,6 +39,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
  * @param allowText shown in the popup when the user hasn't denied the
  * permission yet.
  * @param dismissText shown in the popup when the user dismisses it.
+ * @param onResult called with each result.
  */
 @Composable
 fun GuitarTunerListener(
