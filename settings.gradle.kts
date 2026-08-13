@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "PitchKit"
 include(":app")
+include(":PitchKit")
