@@ -29,10 +29,27 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
  * Runs the guitar tuner and streams formatted results back through [onResult].
  * Handles the microphone permission internally (including the popup and the
  * permanently-denied → Settings path), so the caller just receives result strings.
+ * @param onResult called with each result.
+ * @param titleText shown in the popup title.
+ * @param permanentlyDeniedText shown in the popup when the user permanently
+ * denied the permission.
+ * @param rationaleText shown in the popup when the user hasn't denied the
+ * permission yet.
+ * @param openSettingsText shown in the popup when the user permanently denied
+ * the permission and wants to go to Settings.
+ * @param allowText shown in the popup when the user hasn't denied the
+ * permission yet.
+ * @param dismissText shown in the popup when the user dismisses it.
  */
 @Composable
 fun GuitarTunerListener(
-    onResult: (String) -> Unit
+    onResult: (String) -> Unit,
+    titleText: String = "Microphone needed",
+    permanentlyDeniedText: String = "Microphone access is blocked. Please enable it in Settings to tune your guitar.",
+    rationaleText: String = "This app needs microphone access to detect notes and chords from your guitar.",
+    openSettingsText: String = "Open Settings",
+    allowText: String = "Allow",
+    dismissText: String = "Not now"
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
@@ -90,6 +107,7 @@ fun GuitarTunerListener(
                 val text = when (result) {
                     is TunerEngine.Result.Note ->
                         "${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
+
                     is TunerEngine.Result.Chord -> result.name
                     TunerEngine.Result.Silence -> "—"
                 }
@@ -102,13 +120,11 @@ fun GuitarTunerListener(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Microphone needed") },
+            title = { Text(titleText) },
             text = {
                 Text(
-                    if (permanentlyDenied)
-                        "Microphone access is blocked. Please enable it in Settings to tune your guitar."
-                    else
-                        "This app needs microphone access to detect notes and chords from your guitar."
+                    if (permanentlyDenied) permanentlyDeniedText
+                    else rationaleText
                 )
             },
             confirmButton = {
@@ -124,11 +140,11 @@ fun GuitarTunerListener(
                         launcher.launch(Manifest.permission.RECORD_AUDIO)
                     }
                 }) {
-                    Text(if (permanentlyDenied) "Open Settings" else "Allow")
+                    Text(if (permanentlyDenied) openSettingsText else allowText)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) { Text("Not now") }
+                TextButton(onClick = { showDialog = false }) { Text(dismissText) }
             }
         )
     }
