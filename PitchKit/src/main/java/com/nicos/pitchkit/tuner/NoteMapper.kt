@@ -3,7 +3,7 @@ package com.nicos.pitchkit.tuner
 import kotlin.math.ln
 import kotlin.math.roundToInt
 
-object NoteMapper {
+internal object NoteMapper {
     // 12 semitones. Index 0 = C, matching the MIDI note numbering below.
     private val names = arrayOf(
         "C", "C#", "D", "D#", "E", "F",

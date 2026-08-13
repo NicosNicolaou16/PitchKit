@@ -5,7 +5,7 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 
-class AudioCapture(
+internal class AudioCapture(
     val sampleRate: Int = 44100,        // 44.1 kHz — standard, captures up to ~22 kHz (Nyquist)
     val bufferSize: Int = 8192,         // MUST be power of 2 for the FFT. ~186ms of audio.
 ) {

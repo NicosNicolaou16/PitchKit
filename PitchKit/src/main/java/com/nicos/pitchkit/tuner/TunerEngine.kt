@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlin.math.sqrt
 
-class TunerEngine(
+internal class TunerEngine(
     sampleRate: Int = 44100,
     bufferSize: Int = 8192,
     private val rmsGate: Double = 0.1   // was 0.01. Higher = less sensitive.

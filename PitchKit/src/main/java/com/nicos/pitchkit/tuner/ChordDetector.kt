@@ -1,6 +1,6 @@
 package com.nicos.pitchkit.tuner
 
-class ChordDetector(private val sampleRate: Int) {
+internal class ChordDetector(private val sampleRate: Int) {
 
     // A chord template = its pitch classes, ignoring octave. pitches[0] is the ROOT.
     private data class Template(val name: String, val pitches: IntArray)

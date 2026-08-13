@@ -1,6 +1,6 @@
 package com.nicos.pitchkit.tuner
 
-class YinPitchDetector(
+internal class YinPitchDetector(
     private val sampleRate: Int,
     private val threshold: Double = 0.15   // lower = stricter; 0.10–0.15 works well for guitar
 ) {

@@ -1,10 +1,6 @@
 package com.nicos.pitchkit.tuner
 
-import kotlin.math.cos
-import kotlin.math.hypot
-import kotlin.math.sin
-
-object FFT {
+internal object FFT {
     /**
      * In-place iterative radix-2 Cooley–Tukey FFT.
      * Converts a signal from the TIME domain to the FREQUENCY domain.
