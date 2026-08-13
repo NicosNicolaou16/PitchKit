@@ -43,13 +43,13 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
  */
 @Composable
 fun GuitarTunerListener(
-    onResult: (String) -> Unit,
     titleText: String = "Microphone needed",
     permanentlyDeniedText: String = "Microphone access is blocked. Please enable it in Settings to tune your guitar.",
     rationaleText: String = "This app needs microphone access to detect notes and chords from your guitar.",
     openSettingsText: String = "Open Settings",
     allowText: String = "Allow",
-    dismissText: String = "Not now"
+    dismissText: String = "Not now",
+    onResult: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
