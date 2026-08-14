@@ -78,3 +78,63 @@ with a robust set of features:
 THE BETA RELEASES MAY CONTAIN MAJOR OR MINOR CHANGES.
  
 ---
+
+## ⚙️ Basic Configuration (Gradle Dependencies)
+
+### Groovy
+
+```groovy
+implementation 'com.github.NicosNicolaou16:PitchKit:<PLACEHOLDER: version>'
+```
+
+```groovy
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
+}
+```
+
+### Kotlin DSL
+
+```kotlin
+implementation("com.github.NicosNicolaou16:PitchKit:<PLACEHOLDER: version>")
+```
+
+```kotlin
+dependencyResolutionManagement {
+    //...
+    repositories {
+        //...
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+```
+
+### libs.versions.toml
+
+```toml
+[versions]
+# other versions here...
+pitchKit = "<PLACEHOLDER: version>"
+ 
+[libraries]
+# other libraries here...
+pitch-kit = { group = "com.github.NicosNicolaou16", name = "PitchKit", version.ref = "pitchKit" }
+```
+
+```kotlin
+implementation(libs.pitch.kit)
+```
+
+```kotlin
+dependencyResolutionManagement {
+    //...
+    repositories {
+        //...
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+```
+ 
+---
