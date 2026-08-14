@@ -1,4 +1,4 @@
-package com.nicos.pitchkit.ui.theme
+package com.nicos.pitchkitexample.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
