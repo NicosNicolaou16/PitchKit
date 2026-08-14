@@ -15,7 +15,7 @@ import kotlin.math.sqrt
 internal class TunerEngine(
     sampleRate: Int = 44100,
     bufferSize: Int = 8192,
-    private val rmsGate: Double = 0.1   // was 0.01. Higher = less sensitive.
+    private val rmsGate: Double = 0.01   // was 0.01. Higher = less sensitive.
 ) {
     private val capture = AudioCapture(sampleRate, bufferSize)
     private val yin = YinPitchDetector(sampleRate)

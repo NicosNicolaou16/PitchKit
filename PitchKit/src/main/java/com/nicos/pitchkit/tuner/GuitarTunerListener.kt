@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.AlertDialog
@@ -24,6 +25,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.nicos.pitchkit.BuildConfig
 
 /**
  * Runs the guitar tuner and streams formatted results back through [onResult].
@@ -104,14 +106,15 @@ fun GuitarTunerListener(
         val engine = remember(granted) { TunerEngine() }
         LaunchedEffect(granted) {
             engine.start().collect { result ->
-                val text = when (result) {
+                val result = when (result) {
                     is TunerEngine.Result.Note ->
                         "${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
 
                     is TunerEngine.Result.Chord -> result.name
                     TunerEngine.Result.Silence -> "—"
                 }
-                onResult(text)
+                if (BuildConfig.DEBUG) Log.d("GuitarTuner", result)
+                onResult(result)
             }
         }
     }
