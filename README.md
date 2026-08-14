@@ -241,3 +241,40 @@ GuitarTunerListener(
     }
 )
 ```
+
+### Example for Compose Implementation
+
+```kotlin
+@Composable
+fun PitchKitDemo() {
+    var resultNote by remember { mutableStateOf("-") }
+    var resultFreq by remember { mutableDoubleStateOf(0.0) }
+ 
+    // ==========================================
+    // 1. Start the tuner
+    // ==========================================
+    GuitarTunerListener(profile = InstrumentProfile.Guitar) { result ->
+        when (result) {
+            is TuningResult.Note -> resultFreq = result.freq.toDouble()
+            else -> resultFreq = 0.0 // clear freq on chord/silence
+        }
+        resultNote = when (result) {
+            is TuningResult.Note -> result.name
+            is TuningResult.Chord -> result.name
+            TuningResult.Silence -> "-"
+        }
+    }
+ 
+    // ==========================================
+    // 2. Render your UI
+    // ==========================================
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = resultNote)
+        if (resultFreq > 0) {
+            Text(text = "${"%.1f".format(resultFreq)} Hz")
+        }
+    }
+}
+```
+ 
+---
