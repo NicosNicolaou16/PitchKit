@@ -45,6 +45,7 @@ import com.nicos.pitchkit.BuildConfig
  */
 @Composable
 fun GuitarTunerListener(
+    profile: InstrumentProfile = InstrumentProfile.Guitar,
     titleText: String = "Microphone needed",
     permanentlyDeniedText: String = "Microphone access is blocked. Please enable it in Settings to tune your guitar.",
     rationaleText: String = "This app needs microphone access to detect notes and chords from your guitar.",
@@ -103,7 +104,7 @@ fun GuitarTunerListener(
 
     // ---- Engine + collection, active only while permission is held ----
     if (granted) {
-        val engine = remember(granted) { TunerEngine() }
+        val engine = remember(granted) { TunerEngine(profile = profile) }
         LaunchedEffect(granted) {
             engine.start().collect { result ->
                 val finalResult = when (result) {
