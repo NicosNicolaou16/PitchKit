@@ -29,3 +29,15 @@ with a robust set of features:
   permission (including the permanently-denied → Settings flow) and streams
   results back to you.
 ---
+
+## 🤔 Why Use This Library?
+
+- **No Third-Party Audio Dependencies**: The entire signal-processing pipeline
+  (FFT, pitch detection, chroma analysis) is implemented from scratch in Kotlin.
+- **Time-Saving**: Provides a simple, out-of-the-box solution to microphone
+  capture, permission handling, and DSP — saving significant development time.
+- **Boilerplate Reduction**: Handles `AudioRecord`, the runtime permission flow,
+  and threading, letting you focus on your app's logic.
+- **Typed Results**: Returns a clean, typed `TuningResult` you can format, style,
+  or drive UI from — not a fixed string.
+---
