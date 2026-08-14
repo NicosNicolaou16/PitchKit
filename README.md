@@ -278,3 +278,29 @@ fun PitchKitDemo() {
 ```
  
 ---
+
+---
+
+## 🎼 Supported Chords
+
+Each of the 12 roots is combined with the following qualities:
+
+`major`, `minor` (`m`), `dominant 7th` (`7`), `minor 7th` (`m7`), `major 7th`
+(`maj7`), `sus2`, `sus4`, `diminished` (`dim`), and `augmented` (`aug`).
+
+Examples: `C`, `Am`, `G7`, `Em7`, `Dmaj7`, `Asus2`, `Bdim`, `Faug`.
+ 
+---
+
+## ⭐ Stargazers
+
+If you enjoy this project, please give it a star!
+Check out all the stargazers
+here: [Stargazers on GitHub](https://github.com/NicosNicolaou16/PitchKit/stargazers)
+ 
+---
+
+## 🙏 Support & Contributions
+
+This library is actively maintained. Feedback, bug reports, and feature requests
+are welcome! Please feel free to **open an issue** or submit a **pull request**.
