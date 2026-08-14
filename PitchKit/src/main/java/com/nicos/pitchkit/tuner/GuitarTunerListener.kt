@@ -26,6 +26,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.nicos.pitchkit.BuildConfig
+import com.nicos.pitchkit.tuner.extensions.toPublic
 
 /**
  * Runs the guitar tuner and streams formatted results back through [onResult].
@@ -52,7 +53,7 @@ fun GuitarTunerListener(
     openSettingsText: String = "Open Settings",
     allowText: String = "Allow",
     dismissText: String = "Not now",
-    onResult: (String) -> Unit,
+    onResult: (TuningResult) -> Unit,
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
@@ -107,6 +108,8 @@ fun GuitarTunerListener(
         val engine = remember(granted) { TunerEngine(profile = profile) }
         LaunchedEffect(granted) {
             engine.start().collect { result ->
+                val tuningResult: TuningResult = result.toPublic()
+                // For internal purpose
                 val finalResult = when (result) {
                     is TunerEngine.Result.Note ->
                         "${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
@@ -115,7 +118,7 @@ fun GuitarTunerListener(
                     TunerEngine.Result.Silence -> "—"
                 }
                 if (BuildConfig.DEBUG) Log.d("GuitarTuner", finalResult)
-                onResult(finalResult)
+                onResult(tuningResult)
             }
         }
     }

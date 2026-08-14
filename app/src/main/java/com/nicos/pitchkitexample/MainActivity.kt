@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nicos.pitchkit.tuner.GuitarTunerListener
+import com.nicos.pitchkit.tuner.TuningResult
 import com.nicos.pitchkitexample.ui.theme.PitchKitTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,7 +36,11 @@ class MainActivity : ComponentActivity() {
 
                     // Kept exactly as requested
                     GuitarTunerListener { result ->
-                        resultNote = result
+                        resultNote = when (result) {
+                            is TuningResult.Note -> result.name //"${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
+                            is TuningResult.Chord -> result.name
+                            TuningResult.Silence -> "-"
+                        }
                     }
 
                     // The new Material 3 Expressive UI
@@ -61,7 +66,8 @@ fun ExpressiveTunerUI(
 
     // Check if the detected note matches a standard string (ignoring case for top/bottom E)
     // We use .contains in case your library returns notes with octaves like "E2" or "A2"
-    val isStandardNote = standardStrings.any { resultNote.contains(it, ignoreCase = true) } && resultNote != "-"
+    val isStandardNote =
+        standardStrings.any { resultNote.equals(it, ignoreCase = false) } && resultNote != "-"
 
     // Smoothly animate the main note color to green when a target note is detected
     val animatedNoteColor by animateColorAsState(
@@ -112,7 +118,8 @@ fun ExpressiveTunerUI(
         ) {
             standardStrings.forEach { stringNote ->
                 // Determine if this specific peg is the one currently being detected
-                val isCurrentTarget = resultNote.contains(stringNote, ignoreCase = true) && resultNote != "-"
+                val isCurrentTarget =
+                    resultNote.contains(stringNote, ignoreCase = true) && resultNote != "-"
 
                 // Animate background color
                 val backgroundColor by animateColorAsState(
