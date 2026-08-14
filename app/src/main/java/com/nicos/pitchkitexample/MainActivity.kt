@@ -23,6 +23,17 @@ import androidx.compose.ui.unit.sp
 import com.nicos.pitchkit.tuner.GuitarTunerListener
 import com.nicos.pitchkit.tuner.TuningResult
 import com.nicos.pitchkitexample.ui.theme.PitchKitTheme
+import kotlin.math.abs
+
+// Target frequency for each peg, used to separate the two E strings.
+private val stringFreqs = mapOf(
+    "E" to 82.41,   // low E, 6th string
+    "A" to 110.00,
+    "D" to 146.83,
+    "G" to 196.00,
+    "B" to 246.94,
+    "e" to 329.63,  // high e, 1st string
+)
 
 class MainActivity : ComponentActivity() {
 
@@ -33,9 +44,13 @@ class MainActivity : ComponentActivity() {
             PitchKitTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     var resultNote by remember { mutableStateOf("-") }
+                    var resultFreq by remember { mutableDoubleStateOf(0.0) }
 
                     // Kept exactly as requested
                     GuitarTunerListener { result ->
+                        if (result is TuningResult.Note) {
+                            resultFreq = result.freq.toDouble()
+                        }
                         resultNote = when (result) {
                             is TuningResult.Note -> result.name //"${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
                             is TuningResult.Chord -> result.name
@@ -46,6 +61,7 @@ class MainActivity : ComponentActivity() {
                     // The new Material 3 Expressive UI
                     ExpressiveTunerUI(
                         resultNote = resultNote,
+                        resultFreq = resultFreq,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
@@ -59,6 +75,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ExpressiveTunerUI(
     resultNote: String,
+    resultFreq: Double,
     modifier: Modifier = Modifier
 ) {
     // Standard guitar tuning targets
@@ -67,7 +84,13 @@ fun ExpressiveTunerUI(
     // Check if the detected note matches a standard string (ignoring case for top/bottom E)
     // We use .contains in case your library returns notes with octaves like "E2" or "A2"
     val isStandardNote =
-        standardStrings.any { resultNote.equals(it, ignoreCase = false) } && resultNote != "-"
+        standardStrings.any {
+            isPegActive(
+                resultFreq = resultFreq,
+                resultNote = resultNote,
+                peg = it
+            )
+        }
 
     // Smoothly animate the main note color to green when a target note is detected
     val animatedNoteColor by animateColorAsState(
@@ -119,7 +142,7 @@ fun ExpressiveTunerUI(
             standardStrings.forEach { stringNote ->
                 // Determine if this specific peg is the one currently being detected
                 val isCurrentTarget =
-                    resultNote.contains(stringNote, ignoreCase = true) && resultNote != "-"
+                    isPegActive(resultFreq = resultFreq, resultNote = resultNote, peg = stringNote)
 
                 // Animate background color
                 val backgroundColor by animateColorAsState(
@@ -160,4 +183,22 @@ fun ExpressiveTunerUI(
             }
         }
     }
+}
+
+// How far the detected freq is from a target, in cents (log scale).
+fun centsFrom(resultFreq: Double, target: Double): Double =
+    if (resultFreq <= 0) Double.MAX_VALUE
+    else 1200.0 * (Math.log(resultFreq / target) / Math.log(2.0))
+
+// A peg is "current" when the detected note letter matches AND (for the two E
+// strings) the frequency is near THAT E's octave. Non-E strings only need the
+// letter, but checking frequency for all of them is harmless and more robust.
+fun isPegActive(resultFreq: Double, resultNote: String, peg: String): Boolean {
+    if (resultNote == "-") return false
+    val target = stringFreqs[peg] ?: return false
+    // Case-sensitive letter check so "E" and "e" don't cross-match by name...
+    val letterMatches = resultNote.equals(peg, ignoreCase = true)
+    if (!letterMatches) return false
+    // ...then frequency must be within ~1 semitone of THIS peg's octave.
+    return abs(centsFrom(resultFreq = resultFreq, target = target)) < 100
 }
