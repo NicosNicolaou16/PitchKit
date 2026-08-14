@@ -223,3 +223,21 @@ GuitarTunerListener(profile = dropD) { result ->
     //...your code here
 }
 ```
+
+### Step 4 - Customize the Permission Popup (Optional)
+
+All popup strings are parameters, so you can localize or rebrand them:
+
+```kotlin
+GuitarTunerListener(
+    titleText = "Microphone needed",
+    rationaleText = "This app needs microphone access to detect notes and chords.",
+    permanentlyDeniedText = "Microphone access is blocked. Please enable it in Settings.",
+    allowText = "Allow",
+    openSettingsText = "Open Settings",
+    dismissText = "Not now",
+    onResult = { result ->
+        //...your code here
+    }
+)
+```
