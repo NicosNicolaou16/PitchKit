@@ -36,7 +36,7 @@ internal class YinPitchDetector(
         var tauEstimate = -1
         var t = 2
         while (t < tau) {
-            if (yin[t] < 0.15) {
+            if (yin[t] < threshold) {
                 while (t + 1 < tau && yin[t + 1] < yin[t]) t++
                 tauEstimate = t
                 break
