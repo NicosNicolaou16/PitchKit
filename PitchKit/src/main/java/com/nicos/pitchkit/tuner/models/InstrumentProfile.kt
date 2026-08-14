@@ -1,4 +1,4 @@
-package com.nicos.pitchkit.tuner
+package com.nicos.pitchkit.tuner.models
 
 /**
  * Per-instrument configuration. Everything the DSP pipeline would otherwise

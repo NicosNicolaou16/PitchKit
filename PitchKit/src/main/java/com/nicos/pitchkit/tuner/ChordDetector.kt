@@ -1,5 +1,7 @@
 package com.nicos.pitchkit.tuner
 
+import com.nicos.pitchkit.tuner.models.InstrumentProfile
+
 internal class ChordDetector(
     private val sampleRate: Int,
     private val profile: InstrumentProfile,   // injected: supplies all frequency bounds

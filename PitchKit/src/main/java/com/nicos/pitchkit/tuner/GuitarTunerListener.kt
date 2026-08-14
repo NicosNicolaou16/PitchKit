@@ -27,6 +27,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.nicos.pitchkit.BuildConfig
 import com.nicos.pitchkit.tuner.extensions.toPublic
+import com.nicos.pitchkit.tuner.models.InstrumentProfile
 
 /**
  * Runs the guitar tuner and streams formatted results back through [onResult].

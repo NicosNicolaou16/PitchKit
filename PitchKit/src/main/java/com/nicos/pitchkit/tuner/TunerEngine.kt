@@ -1,5 +1,6 @@
 package com.nicos.pitchkit.tuner
 
+import com.nicos.pitchkit.tuner.models.InstrumentProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
