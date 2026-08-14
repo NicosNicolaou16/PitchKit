@@ -164,3 +164,26 @@ fun TunerScreen() {
     Text(text = resultNote)
 }
 ```
+
+### Step 2 - Use the Typed Result
+
+`TuningResult` is a sealed class, so you can handle each case exhaustively and use
+the numeric data (frequency, cents) however you like:
+
+```kotlin
+GuitarTunerListener { result ->
+    when (result) {
+        is TuningResult.Note -> {
+            // result.name  -> "E", "A#", ...
+            // result.freq  -> detected frequency in Hz
+            // result.cents -> deviation from perfect pitch (-50..+50)
+        }
+        is TuningResult.Chord -> {
+            // result.name  -> "Am", "Cmaj7", ...
+        }
+        TuningResult.Silence -> {
+            // no sound / below threshold
+        }
+    }
+}
+```
