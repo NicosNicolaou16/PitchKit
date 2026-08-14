@@ -17,8 +17,6 @@ frequency spectrum, and returns the detected note or chord — all with a pure
 Kotlin DSP core and **no third-party audio libraries**. First-class Jetpack
 Compose support is included out of the box.
 
-Note: The example project does not include examples for all methods.
-
 ## 🌟 Features
 
 This library is designed to simplify pitch and chord detection in your Android app
