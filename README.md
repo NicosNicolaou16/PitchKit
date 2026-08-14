@@ -187,3 +187,39 @@ GuitarTunerListener { result ->
     }
 }
 ```
+
+### Step 3 - Choose an Instrument (Optional)
+
+By default the tuner is configured for a standard 6-string guitar. Pass a
+different `InstrumentProfile` to tune another instrument:
+
+```kotlin
+// Built-in presets: InstrumentProfile.Guitar (default), .Ukulele, .Bass
+GuitarTunerListener(profile = InstrumentProfile.Ukulele) { result ->
+    //...your code here
+}
+```
+
+You can also supply your own profile for custom tunings:
+
+```kotlin
+val dropD = InstrumentProfile(
+    name = "Drop D",
+    minFreq = 60.0,
+    maxFreq = 5000.0,
+    bassCeiling = 400.0,
+    harmonicPivot = 200.0,
+    openStrings = listOf(
+        InstrumentProfile.OpenString("D2", 73.42),
+        InstrumentProfile.OpenString("A2", 110.00),
+        InstrumentProfile.OpenString("D3", 146.83),
+        InstrumentProfile.OpenString("G3", 196.00),
+        InstrumentProfile.OpenString("B3", 246.94),
+        InstrumentProfile.OpenString("E4", 329.63),
+    ),
+)
+ 
+GuitarTunerListener(profile = dropD) { result ->
+    //...your code here
+}
+```
