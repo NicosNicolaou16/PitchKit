@@ -279,8 +279,6 @@ fun PitchKitDemo() {
  
 ---
 
----
-
 ## 🎼 Supported Chords
 
 Each of the 12 roots is combined with the following qualities:
