@@ -52,3 +52,29 @@ with a robust set of features:
 - **Typed Results**: Returns a clean, typed `TuningResult` you can format, style,
   or drive UI from — not a fixed string.
 ---
+
+### 🎸 Preview (Demo)
+
+| Jetpack Compose                                                                 |
+| ------------------------------------------------------------------------------- |
+| [![](<PLACEHOLDER: path to your demo gif, e.g. examples/pitch_kit_compose.gif>)](<PLACEHOLDER: link to demo gif>) |
+| *[Demo project](https://github.com/NicosNicolaou16/PitchKit/tree/main/app)*     |
+ 
+---
+
+### 🛠️ Versioning
+
+- **JDK Version**: `17`
+- **Target SDK**: `37`
+- **Minimum SDK**: `28`
+- **Kotlin Version**: `2.4.10`
+- **Gradle Version**: `9.3.1`
+- **Build Tool Version**: `37`
+
+---
+
+## !! IMPORTANT NOTE
+
+THE BETA RELEASES MAY CONTAIN MAJOR OR MINOR CHANGES.
+ 
+---
