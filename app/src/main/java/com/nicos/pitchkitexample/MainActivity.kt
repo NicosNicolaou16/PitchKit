@@ -52,7 +52,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ExpressiveTunerUI(resultNote: String, modifier: Modifier = Modifier) {
+fun ExpressiveTunerUI(
+    resultNote: String,
+    modifier: Modifier = Modifier
+) {
     // Standard guitar tuning targets
     val standardStrings = listOf("E", "A", "D", "G", "B", "e")
 
