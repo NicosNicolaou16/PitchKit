@@ -47,7 +47,8 @@ data class InstrumentProfile(
             maxFreq = 5000.0,
             bassCeiling = 400.0,   // guitar chord roots stay below ~400 Hz
             harmonicPivot = 200.0, // middle-ish of the guitar's range
-            openStrings = listOf(  // 6 open strings, low → high
+            openStrings = listOf(
+                // 6 open strings, low → high
                 OpenString("E2", 82.41),
                 OpenString("A2", 110.00),
                 OpenString("D3", 146.83),
