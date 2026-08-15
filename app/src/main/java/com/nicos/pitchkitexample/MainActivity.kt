@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -130,8 +131,12 @@ fun ExpressiveTunerUI(
             Text(
                 text = resultNote,
                 style = MaterialTheme.typography.displayLarge.copy(
-                    fontSize = 120.sp,
                     fontWeight = FontWeight.ExtraBold
+                ),
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = 24.sp,
+                    maxFontSize = 120.sp,
+                    stepSize = 2.sp
                 ),
                 color = animatedNoteColor,
                 textAlign = TextAlign.Center
