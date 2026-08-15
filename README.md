@@ -55,7 +55,7 @@ with a robust set of features:
 
 | Jetpack Compose                                                             |
 |-----------------------------------------------------------------------------|
-| [![Demo Project](examples/example.mp4)](<PLACEHOLDER: link to demo gif>)    |
+| <img src="examples/example.mp4" width="200">                                |
 | *[Demo project](https://github.com/NicosNicolaou16/PitchKit/tree/main/app)* |
  
 ---
