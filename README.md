@@ -53,10 +53,10 @@ with a robust set of features:
 
 ### 🎸 Preview (Demo)
 
-| Jetpack Compose                                                                                                   |
-|-------------------------------------------------------------------------------------------------------------------|
-| [![](<PLACEHOLDER: path to your demo gif, e.g. examples/pitch_kit_compose.gif>)](<PLACEHOLDER: link to demo gif>) |
-| *[Demo project](https://github.com/NicosNicolaou16/PitchKit/tree/main/app)*                                       |
+| Jetpack Compose                                                             |
+|-----------------------------------------------------------------------------|
+| [![Demo Project](examples/example.mp4)](<PLACEHOLDER: link to demo gif>)    |
+| *[Demo project](https://github.com/NicosNicolaou16/PitchKit/tree/main/app)* |
  
 ---
 
