@@ -110,15 +110,17 @@ fun GuitarTunerListener(
         LaunchedEffect(granted) {
             engine.start().collect { result ->
                 val tuningResult: TuningResult = result.toPublic()
-                // For internal purpose
-                val finalResult = when (result) {
-                    is TunerEngine.Result.Note ->
-                        "${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
+                if (BuildConfig.DEBUG) {
+                    // For internal/debug purpose
+                    val finalResult = when (result) {
+                        is TunerEngine.Result.Note ->
+                            "${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
 
-                    is TunerEngine.Result.Chord -> result.name
-                    TunerEngine.Result.Silence -> "—"
+                        is TunerEngine.Result.Chord -> result.name
+                        TunerEngine.Result.Silence -> "—"
+                    }
+                    Log.d("GuitarTuner", finalResult)
                 }
-                if (BuildConfig.DEBUG) Log.d("GuitarTuner", finalResult)
                 onResult(tuningResult)
             }
         }
