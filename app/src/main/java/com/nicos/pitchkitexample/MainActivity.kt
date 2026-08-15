@@ -133,6 +133,7 @@ fun ExpressiveTunerUI(
                 style = MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.ExtraBold
                 ),
+                maxLines = 1,
                 autoSize = TextAutoSize.StepBased(
                     minFontSize = 24.sp,
                     maxFontSize = 120.sp,
