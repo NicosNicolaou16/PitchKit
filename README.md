@@ -53,10 +53,10 @@ with a robust set of features:
 
 ### 🎸 Preview (Demo)
 
-| Jetpack Compose                                                             |
-|-----------------------------------------------------------------------------|
-| ![Example Video](examples/example.mp4)       |
-| *[Demo project](https://github.com/NicosNicolaou16/PitchKit/tree/main/app)* |
+| Jetpack Compose                                                                                                              |
+|------------------------------------------------------------------------------------------------------------------------------|
+| <video autoplay loop muted playsinline>                                     <source src="demo.mp4" type="video/mp4"></video> |
+| *[Demo project](https://github.com/NicosNicolaou16/PitchKit/tree/main/app)*                                                  |
  
 ---
 
