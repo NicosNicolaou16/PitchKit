@@ -43,7 +43,7 @@ import com.nicos.pitchkit.tuner.models.InstrumentProfile
  * @param allowText shown in the popup when the user hasn't denied the
  * permission yet.
  * @param dismissText shown in the popup when the user dismisses it.
- * @param onResult called with each result.
+ * @param onResult called with each detection result (Note, Chord, or Silence)
  */
 @Composable
 fun GuitarTunerListener(
