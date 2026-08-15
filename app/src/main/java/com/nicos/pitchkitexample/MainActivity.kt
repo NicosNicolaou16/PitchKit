@@ -24,6 +24,7 @@ import com.nicos.pitchkit.tuner.GuitarTunerListener
 import com.nicos.pitchkit.tuner.TuningResult
 import com.nicos.pitchkitexample.ui.theme.PitchKitTheme
 import kotlin.math.abs
+import kotlin.math.ln
 
 // Target frequency for each peg, used to separate the two E strings.
 private val stringFreqs = mapOf(
@@ -188,7 +189,7 @@ fun ExpressiveTunerUI(
 // How far the detected freq is from a target, in cents (log scale).
 fun centsFrom(resultFreq: Double, target: Double): Double =
     if (resultFreq <= 0) Double.MAX_VALUE
-    else 1200.0 * (Math.log(resultFreq / target) / Math.log(2.0))
+    else 1200.0 * (ln(resultFreq / target) / ln(2.0))
 
 // A peg is "current" when the detected note letter matches AND (for the two E
 // strings) the frequency is near THAT E's octave. Non-E strings only need the
