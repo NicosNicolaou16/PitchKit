@@ -30,20 +30,21 @@ import com.nicos.pitchkit.tuner.extensions.toPublic
 import com.nicos.pitchkit.tuner.models.InstrumentProfile
 
 /**
- * Runs the guitar tuner and streams formatted results back through [onResult].
- * Handles the microphone permission internally (including the popup and the
- * permanently-denied → Settings path), so the caller just receives result strings.
+ * Runs the tuner and streams typed [TuningResult] values back through [onResult].
+ * Handles the microphone permission internally (including the rationale popup and
+ * the permanently-denied → Settings path), so the caller only handles results.
+ *
+ * @param profile the instrument to tune/detect for. Defaults to [InstrumentProfile.Guitar].
  * @param titleText shown in the popup title.
- * @param permanentlyDeniedText shown in the popup when the user permanently
- * denied the permission.
- * @param rationaleText shown in the popup when the user hasn't denied the
- * permission yet.
- * @param openSettingsText shown in the popup when the user permanently denied
- * the permission and wants to go to Settings.
- * @param allowText shown in the popup when the user hasn't denied the
- * permission yet.
- * @param dismissText shown in the popup when the user dismisses it.
- * @param onResult called with each result.
+ * @param permanentlyDeniedText shown in the popup when the user has permanently
+ * denied the permission (the button then opens Settings).
+ * @param rationaleText shown in the popup when the permission can still be requested.
+ * @param openSettingsText label for the confirm button when the permission is
+ * permanently denied, and it opens Settings.
+ * @param allowText label for the confirm button when the permission can still be requested.
+ * @param dismissText label for the dismiss button.
+ * @param onResult called with each detection result ([TuningResult.Note],
+ * [TuningResult.Chord], or [TuningResult.Silence]).
  */
 @Composable
 fun GuitarTunerListener(
@@ -110,15 +111,17 @@ fun GuitarTunerListener(
         LaunchedEffect(granted) {
             engine.start().collect { result ->
                 val tuningResult: TuningResult = result.toPublic()
-                // For internal purpose
-                val finalResult = when (result) {
-                    is TunerEngine.Result.Note ->
-                        "${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
+                if (BuildConfig.DEBUG) {
+                    // For internal/debug purpose
+                    val finalResult = when (result) {
+                        is TunerEngine.Result.Note ->
+                            "${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
 
-                    is TunerEngine.Result.Chord -> result.name
-                    TunerEngine.Result.Silence -> "—"
+                        is TunerEngine.Result.Chord -> result.name
+                        TunerEngine.Result.Silence -> "—"
+                    }
+                    Log.d("GuitarTuner", finalResult)
                 }
-                if (BuildConfig.DEBUG) Log.d("GuitarTuner", finalResult)
                 onResult(tuningResult)
             }
         }

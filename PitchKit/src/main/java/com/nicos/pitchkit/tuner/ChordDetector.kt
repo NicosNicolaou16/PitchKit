@@ -1,6 +1,10 @@
 package com.nicos.pitchkit.tuner
 
 import com.nicos.pitchkit.tuner.models.InstrumentProfile
+import kotlin.math.ln
+import kotlin.math.max
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 internal class ChordDetector(
     private val sampleRate: Int,
@@ -68,10 +72,10 @@ internal class ChordDetector(
             if (freq < profile.minFreq || freq > profile.maxFreq) continue
 
             // Harmonic weighting centred on the instrument's pivot, not a fixed 200.
-            val weight = Math.sqrt(profile.harmonicPivot / Math.max(freq, profile.harmonicPivot))
+            val weight = sqrt(profile.harmonicPivot / max(freq, profile.harmonicPivot))
 
-            val midi = 69 + 12 * (Math.log(freq / 440.0) / Math.log(2.0))
-            val pc = ((Math.round(midi).toInt() % 12) + 12) % 12
+            val midi = 69 + 12 * (ln(freq / 440.0) / ln(2.0))
+            val pc = ((midi.roundToInt() % 12) + 12) % 12
             chroma[pc] += mags[bin] * weight
         }
         // Normalize so the loudest pitch class = 1.0 (volume-independent scoring).
@@ -102,8 +106,8 @@ internal class ChordDetector(
             if (freq < profile.minFreq) continue      // profile floor
             if (freq > profile.bassCeiling) break      // profile bass ceiling
             if (mags[bin] > maxMag * 0.3) {            // first prominent low bin
-                val midi = 69 + 12 * (Math.log(freq / 440.0) / Math.log(2.0))
-                return ((Math.round(midi).toInt() % 12) + 12) % 12
+                val midi = 69 + 12 * (ln(freq / 440.0) / ln(2.0))
+                return ((midi.roundToInt() % 12) + 12) % 12
             }
         }
         return -1

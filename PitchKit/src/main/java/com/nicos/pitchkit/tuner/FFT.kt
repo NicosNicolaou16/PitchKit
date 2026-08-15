@@ -1,5 +1,9 @@
 package com.nicos.pitchkit.tuner
 
+import kotlin.math.cos
+import kotlin.math.hypot
+import kotlin.math.sin
+
 internal object FFT {
     /**
      * In-place iterative radix-2 Cooley–Tukey FFT.
@@ -35,8 +39,8 @@ internal object FFT {
         var len = 2
         while (len <= n) {
             val ang = -2.0 * Math.PI / len
-            val wRe = Math.cos(ang)
-            val wIm = Math.sin(ang)
+            val wRe = cos(ang)
+            val wIm = sin(ang)
             var i = 0
             while (i < n) {
                 var curRe = 1.0
@@ -97,7 +101,7 @@ internal object FFT {
         // Magnitude of each bin = sqrt(real² + imag²) = strength of that frequency.
         val mags = DoubleArray(n / 2)
         for (i in 0 until n / 2) {
-            mags[i] = Math.hypot(re[i], im[i])
+            mags[i] = hypot(re[i], im[i])
         }
         return mags
     }

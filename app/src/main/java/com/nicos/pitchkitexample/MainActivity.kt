@@ -7,10 +7,27 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,18 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nicos.pitchkit.tuner.GuitarTunerListener
 import com.nicos.pitchkit.tuner.TuningResult
+import com.nicos.pitchkitexample.helpers.isPegActive
 import com.nicos.pitchkitexample.ui.theme.PitchKitTheme
-import kotlin.math.abs
-
-// Target frequency for each peg, used to separate the two E strings.
-private val stringFreqs = mapOf(
-    "E" to 82.41,   // low E, 6th string
-    "A" to 110.00,
-    "D" to 146.83,
-    "G" to 196.00,
-    "B" to 246.94,
-    "e" to 329.63,  // high e, 1st string
-)
 
 class MainActivity : ComponentActivity() {
 
@@ -124,8 +131,13 @@ fun ExpressiveTunerUI(
             Text(
                 text = resultNote,
                 style = MaterialTheme.typography.displayLarge.copy(
-                    fontSize = 120.sp,
                     fontWeight = FontWeight.ExtraBold
+                ),
+                maxLines = 1,
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = 24.sp,
+                    maxFontSize = 120.sp,
+                    stepSize = 2.sp
                 ),
                 color = animatedNoteColor,
                 textAlign = TextAlign.Center
@@ -183,22 +195,4 @@ fun ExpressiveTunerUI(
             }
         }
     }
-}
-
-// How far the detected freq is from a target, in cents (log scale).
-fun centsFrom(resultFreq: Double, target: Double): Double =
-    if (resultFreq <= 0) Double.MAX_VALUE
-    else 1200.0 * (Math.log(resultFreq / target) / Math.log(2.0))
-
-// A peg is "current" when the detected note letter matches AND (for the two E
-// strings) the frequency is near THAT E's octave. Non-E strings only need the
-// letter, but checking frequency for all of them is harmless and more robust.
-fun isPegActive(resultFreq: Double, resultNote: String, peg: String): Boolean {
-    if (resultNote == "-") return false
-    val target = stringFreqs[peg] ?: return false
-    // Case-sensitive letter check so "E" and "e" don't cross-match by name...
-    val letterMatches = resultNote.equals(peg, ignoreCase = true)
-    if (!letterMatches) return false
-    // ...then frequency must be within ~1 semitone of THIS peg's octave.
-    return abs(centsFrom(resultFreq = resultFreq, target = target)) < 100
 }
