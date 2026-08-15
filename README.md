@@ -55,7 +55,7 @@ with a robust set of features:
 
 | Jetpack Compose                                                             |
 |-----------------------------------------------------------------------------|
-| [Watch the Example Video](examples/example.mp4)       |
+| ![Example Video](examples/example.mp4)       |
 | *[Demo project](https://github.com/NicosNicolaou16/PitchKit/tree/main/app)* |
  
 ---
