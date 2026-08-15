@@ -24,7 +24,8 @@ fun centsFrom(resultFreq: Double, target: Double): Double =
 fun isPegActive(resultFreq: Double, resultNote: String, peg: String): Boolean {
     if (resultNote == "-") return false
     val target = stringFreqs[peg] ?: return false
-    // Case-sensitive letter check so "E" and "e" don't cross-match by name...
+    // Case-INSENSITIVE letter check ("E" matches both pegs by name); the
+    // frequency gate below is what actually separates low E from high e.
     val letterMatches = resultNote.equals(peg, ignoreCase = true)
     if (!letterMatches) return false
     // ...then frequency must be within ~1 semitone of THIS peg's octave.

@@ -8,13 +8,13 @@ sealed class TuningResult {
     /**
      * A single detected note.
      * @param name  note name, e.g. "E" or "A#".
-     * @param freq  detected frequency in Hz.
      * @param cents deviation from perfect pitch (-50..+50); 0 = in tune.
+     * @param freq  detected frequency in Hz.
      */
     data class Note(
         val name: String,
-        val freq: Float,
         val cents: Double,
+        val freq: Float,
     ) : TuningResult()
 
     /**
