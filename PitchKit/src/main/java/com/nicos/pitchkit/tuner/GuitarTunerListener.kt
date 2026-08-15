@@ -40,7 +40,7 @@ import com.nicos.pitchkit.tuner.models.InstrumentProfile
  * denied the permission (the button then opens Settings).
  * @param rationaleText shown in the popup when the permission can still be requested.
  * @param openSettingsText label for the confirm button when the permission is
- * permanently denied and it opens Settings.
+ * permanently denied, and it opens Settings.
  * @param allowText label for the confirm button when the permission can still be requested.
  * @param dismissText label for the dismiss button.
  * @param onResult called with each detection result ([TuningResult.Note],
