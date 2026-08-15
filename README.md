@@ -55,7 +55,7 @@ with a robust set of features:
 
 | Jetpack Compose                                                             |
 |-----------------------------------------------------------------------------|
-| <video src="examples/example.mp4" width="200">                              |
+| <video src="examples/example.mp4" width="100%" controls>rewrw</video>       |
 | *[Demo project](https://github.com/NicosNicolaou16/PitchKit/tree/main/app)* |
  
 ---
