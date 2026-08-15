@@ -1,5 +1,8 @@
 package com.nicos.pitchkit.tuner
 
+import kotlin.math.cos
+import kotlin.math.sin
+
 internal object FFT {
     /**
      * In-place iterative radix-2 Cooley–Tukey FFT.
@@ -35,8 +38,8 @@ internal object FFT {
         var len = 2
         while (len <= n) {
             val ang = -2.0 * Math.PI / len
-            val wRe = Math.cos(ang)
-            val wIm = Math.sin(ang)
+            val wRe = cos(ang)
+            val wIm = sin(ang)
             var i = 0
             while (i < n) {
                 var curRe = 1.0
