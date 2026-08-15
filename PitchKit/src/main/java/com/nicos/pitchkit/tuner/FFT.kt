@@ -1,6 +1,7 @@
 package com.nicos.pitchkit.tuner
 
 import kotlin.math.cos
+import kotlin.math.hypot
 import kotlin.math.sin
 
 internal object FFT {
@@ -100,7 +101,7 @@ internal object FFT {
         // Magnitude of each bin = sqrt(real² + imag²) = strength of that frequency.
         val mags = DoubleArray(n / 2)
         for (i in 0 until n / 2) {
-            mags[i] = Math.hypot(re[i], im[i])
+            mags[i] = hypot(re[i], im[i])
         }
         return mags
     }
