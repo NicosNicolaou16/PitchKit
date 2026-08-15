@@ -1,4 +1,4 @@
-package com.nicos.pitchkit.tuner.helpers
+package com.nicos.pitchkitexample.helpers
 
 import kotlin.math.abs
 import kotlin.math.ln

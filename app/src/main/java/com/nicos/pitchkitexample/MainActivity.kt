@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nicos.pitchkit.tuner.GuitarTunerListener
 import com.nicos.pitchkit.tuner.TuningResult
-import com.nicos.pitchkit.tuner.helpers.isPegActive
+import com.nicos.pitchkitexample.helpers.isPegActive
 import com.nicos.pitchkitexample.ui.theme.PitchKitTheme
 
 class MainActivity : ComponentActivity() {
