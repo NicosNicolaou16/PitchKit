@@ -44,3 +44,17 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
 }
+
+/*
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            groupId = "com.github.NicosNicolaou16"
+            artifactId = "PitchKit"
+            version = "1.0.0"
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+    }
+}*/
