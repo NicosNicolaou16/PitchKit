@@ -82,7 +82,7 @@ THE BETA RELEASES MAY CONTAIN MAJOR OR MINOR CHANGES.
 ### Groovy
 
 ```groovy
-implementation 'com.github.NicosNicolaou16:PitchKit:1.0.0-beta01'
+implementation 'com.github.NicosNicolaou16:PitchKit:1.0.0'
 ```
 
 ```groovy
@@ -96,7 +96,7 @@ allprojects {
 ### Kotlin DSL
 
 ```kotlin
-implementation("com.github.NicosNicolaou16:PitchKit:1.0.0-beta01")
+implementation("com.github.NicosNicolaou16:PitchKit:1.0.0")
 ```
 
 ```kotlin
@@ -114,7 +114,7 @@ dependencyResolutionManagement {
 ```toml
 [versions]
 # other versions here...
-pitchKit = "1.0.0-beta01"
+pitchKit = "1.0.0"
  
 [libraries]
 # other libraries here...
