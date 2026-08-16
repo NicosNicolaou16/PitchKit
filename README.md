@@ -1,5 +1,7 @@
 # Pitch Kit
 
+[![](https://jitpack.io/v/NicosNicolaou16/PitchKit.svg)](https://jitpack.io/#NicosNicolaou16/PitchKit)
+
 [![Linktree](https://img.shields.io/badge/linktree-1de9b6?style=for-the-badge&logo=linktree&logoColor=white)](https://linktr.ee/nicos_nicolaou)
 [![Static Badge](https://img.shields.io/badge/Site-blue?style=for-the-badge&label=Web)](https://nicosnicolaou16.github.io/)
 [![X](https://img.shields.io/badge/X-%23000000.svg?style=for-the-badge&logo=X&logoColor=white)](https://twitter.com/nicolaou_nicos)
