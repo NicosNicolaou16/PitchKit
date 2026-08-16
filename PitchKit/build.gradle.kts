@@ -23,6 +23,11 @@ android {
         compose = true
         buildConfig = true
     }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
