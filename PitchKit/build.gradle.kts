@@ -46,7 +46,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
 }
 
-/*
 publishing {
     publications {
         register<MavenPublication>("release") {
@@ -58,4 +57,4 @@ publishing {
             }
         }
     }
-}*/
+}
