@@ -116,7 +116,7 @@ dependencyResolutionManagement {
 ```toml
 [versions]
 # other versions here...
-pitchKit = "1.0.0"
+pitchKit = "1.0.1"
  
 [libraries]
 # other libraries here...
