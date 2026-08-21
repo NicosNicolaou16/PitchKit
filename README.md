@@ -98,7 +98,7 @@ allprojects {
 ### Kotlin DSL
 
 ```kotlin
-implementation("com.github.NicosNicolaou16:PitchKit:1.0.0")
+implementation("com.github.NicosNicolaou16:PitchKit:1.0.1")
 ```
 
 ```kotlin
