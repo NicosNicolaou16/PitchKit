@@ -4,6 +4,11 @@ import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 internal class AudioCapture(
     val sampleRate: Int = 44100,        // 44.1 kHz — standard, captures up to ~22 kHz (Nyquist)
@@ -12,9 +17,7 @@ internal class AudioCapture(
     // Bigger buffer = better low-freq resolution (needed for
     // low E at 82 Hz) but slower updates.
     private var recorder: AudioRecord? = null
-
-    @Volatile
-    private var running = false   // @Volatile: read/written from two threads (UI + capture)
+    private var job: Job? = null   // the coroutine doing the reading, so we can cancel it
 
     // The OS tells us the smallest buffer it will accept for these settings.
     // If we request less than this, AudioRecord fails to initialize.
@@ -25,7 +28,7 @@ internal class AudioCapture(
     )
 
     @SuppressLint("MissingPermission") // caller must hold RECORD_AUDIO permission at runtime
-    fun start(onBuffer: (FloatArray) -> Unit) {
+    fun start(scope: CoroutineScope, onBuffer: (FloatArray) -> Unit) {
         // Internal OS buffer should be larger than our read chunk so audio isn't
         // dropped if our processing thread briefly stalls. We double it for headroom.
         val recordBuf = maxOf(minBuf, bufferSize * 2)
@@ -40,14 +43,13 @@ internal class AudioCapture(
             recordBuf
         )
         recorder?.startRecording()
-        running = true
 
         // All audio reading + processing happens on THIS background thread,
         // never the UI thread (reading blocks until samples are available).
-        Thread {
+        job = scope.launch(Dispatchers.IO) {
             val shortBuf = ShortArray(bufferSize)   // raw 16-bit samples from hardware
             val floatBuf = FloatArray(bufferSize)   // normalized copy for DSP math
-            while (running) {
+            while (isActive) {
                 // read() blocks until it fills the buffer (or returns fewer samples).
                 val read = recorder?.read(shortBuf, 0, bufferSize) ?: 0
                 if (read > 0) {
@@ -60,12 +62,13 @@ internal class AudioCapture(
                     onBuffer(floatBuf.copyOf(read))
                 }
             }
-        }.start()
+        }
     }
 
     fun stop() {
+        job?.cancel()          // signal the loop to stop
+        job = null
         if (recorder == null) return   // already stopped — no-op
-        running = false        // signals the loop to exit
         recorder?.stop()
         recorder?.release()    // release hardware — mandatory, or the mic stays locked
         recorder = null
