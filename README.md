@@ -84,7 +84,7 @@ THE BETA RELEASES MAY CONTAIN MAJOR OR MINOR CHANGES.
 ### Groovy
 
 ```groovy
-implementation 'com.github.NicosNicolaou16:PitchKit:1.0.0'
+implementation 'com.github.NicosNicolaou16:PitchKit:1.0.1'
 ```
 
 ```groovy
