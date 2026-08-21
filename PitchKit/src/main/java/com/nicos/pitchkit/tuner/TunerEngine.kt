@@ -22,8 +22,10 @@ internal class TunerEngine(
 ) {
     private val capture = AudioCapture(sampleRate, bufferSize)
     private val yin = YinPitchDetector(sampleRate)
+
     // Pass the profile down so the detector uses this instrument's frequency bounds.
     private val chordDetector = ChordDetector(sampleRate, profile)
+
     // Loudness gate now comes from the profile rather than being hardcoded.
     private val rmsGate = profile.rmsGate
 
@@ -40,7 +42,7 @@ internal class TunerEngine(
     private val requiredAgreement = 2
 
     fun start() = callbackFlow<Result> {
-        capture.start { raw ->
+        capture.start(scope = this) { raw ->
             val buf = preProcess(raw)   // clean the signal first
 
             // Energy gate: skip frames quieter than the profile's rmsGate.
@@ -83,7 +85,8 @@ internal class TunerEngine(
         val mean = out.average().toFloat()
         for (i in out.indices) out[i] -= mean
         // First-order high-pass: attenuates low-frequency rumble.
-        var prev = 0f; var prevOut = 0f
+        var prev = 0f;
+        var prevOut = 0f
         val alpha = 0.95f
         for (i in out.indices) {
             val cur = out[i]
