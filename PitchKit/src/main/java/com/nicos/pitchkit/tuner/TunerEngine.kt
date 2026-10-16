@@ -51,7 +51,7 @@ internal class TunerEngine(
         history.clear()               // debounce window
         lastStable = Result.Silence   // otherwise the old note is shown until the first new majority
 
-        capture.start(scope = this) { raw ->
+        capture.start(scope = this, onError = { close(it) }) { raw ->
             val buf = highPass.process(raw) // clean the signal first
 
             // Energy gate: skip frames quieter than the profile's rmsGate.
