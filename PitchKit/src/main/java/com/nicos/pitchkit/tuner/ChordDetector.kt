@@ -22,8 +22,12 @@ internal class ChordDetector(
     private val chromaHistory = ArrayDeque<DoubleArray>()
     private val chromaWindow = 3
 
-    // companion object: one place to tune it, and tests can reference it
-    private val BASS_ROOT_BONUS = 0.15   // reward chords whose root is the lowest note
+    // ChordDetector.kt: delete L25–26 and add at the end of the class
+    private companion object {
+        // Compile-time constants: one place to tune the chord scoring
+        const val BASS_ROOT_BONUS = 0.15   // reward chords whose root is the lowest note
+        const val SWITCH_MARGIN = 0.08     // how much a new chord must beat the current one
+    }
 
     /**
      * Builds every recognizable chord by transposing each interval pattern to all
@@ -165,10 +169,9 @@ internal class ChordDetector(
         // IN THIS SAME FRAME by a clear margin. Comparing against a stored score from
         // earlier frames made low-scoring chords (Em, F) unable to replace high-scoring
         // ones (D, C), so the old chord stayed on screen.
-        val switchMargin = 0.08
         if (currentChord == null ||
             candidateName == currentChord ||
-            bestScore > currentChordScore + switchMargin
+            bestScore > currentChordScore + SWITCH_MARGIN
         ) {
             currentChord = candidateName
         }
