@@ -45,9 +45,14 @@ internal class TunerEngine(
     private val requiredAgreement = 2
 
     fun start() = callbackFlow<Result> {
-        highPass.reset()
+        // A new recording session must not inherit anything from the previous one:
+        highPass.reset()              // filter memory (prevIn/prevOut) → avoids a click on the first buffer
+        chordDetector.reset()         // chord hysteresis + chroma history
+        history.clear()               // debounce window
+        lastStable = Result.Silence   // otherwise the old note is shown until the first new majority
+
         capture.start(scope = this) { raw ->
-            val buf = highPass.process(raw)//preProcess(raw)   // clean the signal first
+            val buf = highPass.process(raw) // clean the signal first
 
             // Energy gate: skip frames quieter than the profile's rmsGate.
             val rms = sqrt(buf.map { (it * it).toDouble() }.average())
@@ -75,31 +80,12 @@ internal class TunerEngine(
 
             trySend(smooth(result))
         }
-        awaitClose { stop() }   // flow cancelled → release the mic
+        awaitClose { stop() }   // flow canceled → release the mic
     }
         .buffer(capacity = Channel.CONFLATED)  // keep only the latest frame under load
         .flowOn(Dispatchers.IO)                // all audio work off the main thread
 
     fun stop() = capture.stop()
-
-    /** Pre-processing: DC-offset removal + a one-pole high-pass to cut rumble. */
-    /*private fun preProcess(raw: FloatArray): FloatArray {
-        val out = raw.copyOf()
-        // Remove DC bias so the waveform is centred on zero (pitch math assumes this).
-        val mean = out.average().toFloat()
-        for (i in out.indices) out[i] -= mean
-        // First-order high-pass: attenuates low-frequency rumble.
-        var prev = 0f;
-        var prevOut = 0f
-        val alpha = 0.95f
-        for (i in out.indices) {
-            val cur = out[i]
-            val hp = alpha * (prevOut + cur - prev)
-            prev = cur; prevOut = hp
-            out[i] = hp
-        }
-        return out
-    }*/
 
     /** Debounces output: only updates once one result dominates the recent window. */
     private fun smooth(r: Result): Result {
