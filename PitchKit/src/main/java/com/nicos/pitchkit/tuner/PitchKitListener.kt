@@ -31,12 +31,14 @@ import com.nicos.pitchkit.tuner.extensions.toPublic
 import com.nicos.pitchkit.tuner.models.InstrumentProfile
 import kotlinx.coroutines.flow.catch
 
+private const val TAG = "PitchKit"
+
 /**
- * Runs the tuner and streams typed [TuningResult] values back through [onResult].
+ * Listens to the microphone and streams detected notes and chords as typed [TuningResult] values through [onResult]
  * Handles the microphone permission internally (including the rationale popup and
  * the permanently-denied → Settings path), so the caller only handles results.
  *
- * @param profile the instrument to tune/detect for. Defaults to [InstrumentProfile.Guitar].
+ * @param profile the instrument to detect for (frequency range, sharps/flats). Defaults to [InstrumentProfile.Guitar].
  * @param titleText shown in the popup title.
  * @param permanentlyDeniedText shown in the popup when the user has permanently
  * denied the permission (the button then opens Settings).
@@ -121,7 +123,7 @@ fun PitchKitListener(
                 .catch { e ->
                     // Catch here so a mic failure never crashes the host app
                     if (BuildConfig.DEBUG) {
-                        Log.w("PitchKit", "Audio capture failed", e)
+                        Log.w(TAG, "Audio capture failed", e)
                     }
                     // Clear the display first: the last detected note is no longer live
                     currentOnResult(TuningResult.Silence)
@@ -138,7 +140,7 @@ fun PitchKitListener(
                             is TunerEngine.Result.Chord -> result.name
                             TunerEngine.Result.Silence -> "—"
                         }
-                        Log.d("GuitarTuner", finalResult)
+                        Log.d(TAG, finalResult)
                     }
                 }
         }
