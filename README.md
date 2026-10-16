@@ -75,7 +75,10 @@ with a robust set of features:
 ## !! IMPORTANT NOTE
 
 THE BETA RELEASES MAY CONTAIN MAJOR OR MINOR CHANGES.
- 
+
+> [!TIP]
+> Upgrading from an older version? See the [Migration Guide](MIGRATION.md).
+
 ---
 
 ## ⚙️ Basic Configuration (Gradle Dependencies)
@@ -152,7 +155,7 @@ composition.
 fun TunerScreen() {
     var resultNote by remember { mutableStateOf("-") }
  
-    GuitarTunerListener { result ->
+    PitchKitListener { result ->
         resultNote = when (result) {
             is TuningResult.Note -> result.name
             is TuningResult.Chord -> result.name
@@ -170,7 +173,7 @@ fun TunerScreen() {
 the numeric data (frequency, cents) however you like:
 
 ```kotlin
-GuitarTunerListener { result ->
+PitchKitListener { result ->
     when (result) {
         is TuningResult.Note -> {
             // result.name  -> "E", "A#", ...
@@ -194,7 +197,7 @@ different `InstrumentProfile` to tune another instrument:
 
 ```kotlin
 // Built-in presets: InstrumentProfile.Guitar (default), .Ukulele, .Bass
-GuitarTunerListener(profile = InstrumentProfile.Ukulele) { result ->
+PitchKitListener(profile = InstrumentProfile.Ukulele) { result ->
     //...your code here
 }
 ```
@@ -218,7 +221,7 @@ val dropD = InstrumentProfile(
     ),
 )
  
-GuitarTunerListener(profile = dropD) { result ->
+PitchKitListener(profile = dropD) { result ->
     //...your code here
 }
 ```
@@ -228,7 +231,7 @@ GuitarTunerListener(profile = dropD) { result ->
 All popup strings are parameters, so you can localize or rebrand them:
 
 ```kotlin
-GuitarTunerListener(
+PitchKitListener(
     titleText = "Microphone needed",
     rationaleText = "This app needs microphone access to detect notes and chords.",
     permanentlyDeniedText = "Microphone access is blocked. Please enable it in Settings.",
@@ -252,7 +255,7 @@ fun PitchKitDemo() {
     // ==========================================
     // 1. Start the tuner
     // ==========================================
-    GuitarTunerListener(profile = InstrumentProfile.Guitar) { result ->
+    PitchKitListener(profile = InstrumentProfile.Guitar) { result ->
         when (result) {
             is TuningResult.Note -> resultFreq = result.freq.toDouble()
             else -> resultFreq = 0.0 // clear freq on chord/silence

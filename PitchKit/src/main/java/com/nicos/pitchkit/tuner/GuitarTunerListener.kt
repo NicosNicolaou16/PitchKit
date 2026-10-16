@@ -22,8 +22,8 @@ import com.nicos.pitchkit.tuner.models.InstrumentProfile
 fun GuitarTunerListener(
     profile: InstrumentProfile = InstrumentProfile.Guitar,
     titleText: String = "Microphone needed",
-    permanentlyDeniedText: String = "Microphone access is blocked. Please enable it in Settings to tune your guitar.",
-    rationaleText: String = "This app needs microphone access to detect notes and chords from your guitar.",
+    permanentlyDeniedText: String = "Microphone access is blocked. Please enable it in Settings.",
+    rationaleText: String = "This app needs microphone access to detect notes and chords.",
     openSettingsText: String = "Open Settings",
     allowText: String = "Allow",
     dismissText: String = "Not now",
