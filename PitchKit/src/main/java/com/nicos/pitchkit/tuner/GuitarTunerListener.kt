@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.nicos.pitchkit.BuildConfig
 import com.nicos.pitchkit.tuner.extensions.toPublic
 import com.nicos.pitchkit.tuner.models.InstrumentProfile
+import kotlinx.coroutines.flow.catch
 
 /**
  * Runs the tuner and streams typed [TuningResult] values back through [onResult].
@@ -44,6 +45,7 @@ import com.nicos.pitchkit.tuner.models.InstrumentProfile
  * permanently denied, and it opens Settings.
  * @param allowText label for the confirm button when the permission can still be requested.
  * @param dismissText label for the dismiss button.
+ * @param onError new optional parameter, so existing callers keep compiling
  * @param onResult called with each detection result ([TuningResult.Note],
  * [TuningResult.Chord], or [TuningResult.Silence]).
  */
@@ -56,6 +58,7 @@ fun GuitarTunerListener(
     openSettingsText: String = "Open Settings",
     allowText: String = "Allow",
     dismissText: String = "Not now",
+    onError: (Throwable) -> Unit = {},
     onResult: (TuningResult) -> Unit,
 ) {
     val context = LocalContext.current
@@ -107,24 +110,33 @@ fun GuitarTunerListener(
     }
 
     val currentOnResult by rememberUpdatedState(onResult)
+    val currentOnError by rememberUpdatedState(onError)
 
     // ---- Engine + collection, active only while permission is held ----
     if (granted) {
         LaunchedEffect(profile) {
-            TunerEngine(profile = profile).start().collect { result ->
-                currentOnResult(result.toPublic())
-                if (BuildConfig.DEBUG) {
-                    // For internal/debug purpose
-                    val finalResult = when (result) {
-                        is TunerEngine.Result.Note ->
-                            "${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
-
-                        is TunerEngine.Result.Chord -> result.name
-                        TunerEngine.Result.Silence -> "—"
+            TunerEngine(profile = profile).start()
+                .catch { e ->
+                    // Catch here so a mic failure never crashes the host app
+                    if (BuildConfig.DEBUG) {
+                        Log.w("PitchKit", "Audio capture failed", e)
                     }
-                    Log.d("GuitarTuner", finalResult)
+                    currentOnError(e)
                 }
-            }
+                .collect { result ->
+                    currentOnResult(result.toPublic())
+                    if (BuildConfig.DEBUG) {
+                        // For internal/debug purpose
+                        val finalResult = when (result) {
+                            is TunerEngine.Result.Note ->
+                                "${result.name} ${result.freq} (${"%.0f".format(result.cents)}¢)"
+
+                            is TunerEngine.Result.Chord -> result.name
+                            TunerEngine.Result.Silence -> "—"
+                        }
+                        Log.d("GuitarTuner", finalResult)
+                    }
+                }
         }
     }
 
