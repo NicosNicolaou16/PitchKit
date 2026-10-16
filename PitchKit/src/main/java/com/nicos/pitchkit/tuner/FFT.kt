@@ -67,14 +67,6 @@ internal object FFT {
     }
 
     /**
-     * Plain magnitude spectrum (no padding). Kept for callers that don't need
-     * the finer resolution. Uses the largest power of 2 that fits the input.
-     */
-    fun magnitude(samples: FloatArray): DoubleArray {
-        return magnitudePadded(samples, padFactor = 1)
-    }
-
-    /**
      * Zero-padded magnitude spectrum.
      * Zero-padding does NOT add real information, but it INTERPOLATES the spectrum
      * onto a finer frequency grid, which helps resolve closely-spaced LOW notes
