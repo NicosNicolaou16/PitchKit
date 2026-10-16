@@ -13,11 +13,10 @@
 [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/@nicosnicolaou16)
 [![Static Badge](https://img.shields.io/badge/Developer_Profile-blue?style=for-the-badge&label=Google)](https://g.dev/nicolaou_nicos)
 
-A modern and easy-to-use Android library for real-time guitar tuning and chord
-detection straight from the device microphone. It captures audio, analyzes the
-frequency spectrum, and returns the detected note or chord — all with a pure
-Kotlin DSP core and **no third-party audio libraries**. First-class Jetpack
-Compose support is included out of the box.
+A modern Android library for real-time **pitch and chord detection** straight from the device
+microphone, for tuners, chord trainers, practice and ear-training apps. It captures audio, analyzes
+the frequency spectrum, and returns the detected note or chord — all with a pure Kotlin DSP core and
+**no third-party audio libraries**. First-class Jetpack Compose support is included out of the box.
 
 ## 🌟 Features
 
@@ -141,7 +140,7 @@ dependencyResolutionManagement {
 
 ## 🚀 Compose Configuration
 
-### Step 1 - Add the Tuner Listener
+### Step 1 - Add the PitchKit Listener
 
 Drop `PitchKitListener` into any composable. It requests the microphone
 permission, starts detection, and streams a typed `TuningResult` back through the
