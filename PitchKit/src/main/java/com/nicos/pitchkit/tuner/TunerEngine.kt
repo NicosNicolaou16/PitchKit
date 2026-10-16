@@ -17,7 +17,7 @@ import kotlin.math.sqrt
  */
 internal class TunerEngine(
     private val profile: InstrumentProfile = InstrumentProfile.Guitar,
-    sampleRate: Int = 44100,
+    private val sampleRate: Int = 44100,
     bufferSize: Int = 8192,
 ) {
     private val capture = AudioCapture(sampleRate, bufferSize)
@@ -28,6 +28,9 @@ internal class TunerEngine(
 
     // Loudness gate now comes from the profile rather than being hardcoded.
     private val rmsGate = profile.rmsGate
+
+    // Cutoff at half the instrument's floor: guitar ≈ 35 Hz, bass ≈ 17.5 Hz
+    private val highPass = HighPassFilter(cutoffHz = profile.minFreq / 2, sampleRate = sampleRate)
 
     // Exactly one of these per frame; the UI handles each with a `when`.
     sealed class Result {
@@ -42,8 +45,9 @@ internal class TunerEngine(
     private val requiredAgreement = 2
 
     fun start() = callbackFlow<Result> {
+        highPass.reset()
         capture.start(scope = this) { raw ->
-            val buf = preProcess(raw)   // clean the signal first
+            val buf = highPass.process(raw)//preProcess(raw)   // clean the signal first
 
             // Energy gate: skip frames quieter than the profile's rmsGate.
             val rms = sqrt(buf.map { (it * it).toDouble() }.average())
