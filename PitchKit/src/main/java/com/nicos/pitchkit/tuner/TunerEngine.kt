@@ -83,7 +83,7 @@ internal class TunerEngine(
     fun stop() = capture.stop()
 
     /** Pre-processing: DC-offset removal + a one-pole high-pass to cut rumble. */
-    private fun preProcess(raw: FloatArray): FloatArray {
+    /*private fun preProcess(raw: FloatArray): FloatArray {
         val out = raw.copyOf()
         // Remove DC bias so the waveform is centred on zero (pitch math assumes this).
         val mean = out.average().toFloat()
@@ -99,7 +99,7 @@ internal class TunerEngine(
             out[i] = hp
         }
         return out
-    }
+    }*/
 
     /** Debounces output: only updates once one result dominates the recent window. */
     private fun smooth(r: Result): Result {

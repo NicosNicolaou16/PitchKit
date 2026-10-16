@@ -18,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
@@ -105,12 +106,13 @@ fun GuitarTunerListener(
         if (!granted) launcher.launch(Manifest.permission.RECORD_AUDIO)
     }
 
+    val currentOnResult by rememberUpdatedState(onResult)
+
     // ---- Engine + collection, active only while permission is held ----
     if (granted) {
-        val engine = remember(granted) { TunerEngine(profile = profile) }
-        LaunchedEffect(granted) {
-            engine.start().collect { result ->
-                val tuningResult: TuningResult = result.toPublic()
+        LaunchedEffect(profile) {
+            TunerEngine(profile = profile).start().collect { result ->
+                currentOnResult(result.toPublic())
                 if (BuildConfig.DEBUG) {
                     // For internal/debug purpose
                     val finalResult = when (result) {
@@ -122,7 +124,6 @@ fun GuitarTunerListener(
                     }
                     Log.d("GuitarTuner", finalResult)
                 }
-                onResult(tuningResult)
             }
         }
     }
