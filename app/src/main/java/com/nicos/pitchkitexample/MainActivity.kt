@@ -37,7 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nicos.pitchkit.tuner.GuitarTunerListener
+import com.nicos.pitchkit.tuner.PitchKitListener
 import com.nicos.pitchkit.tuner.TuningResult
 import com.nicos.pitchkitexample.helpers.isPegActive
 import com.nicos.pitchkitexample.ui.theme.PitchKitTheme
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
                     var resultFreq by remember { mutableDoubleStateOf(0.0) }
 
                     // Kept exactly as requested
-                    GuitarTunerListener { result ->
+                    PitchKitListener { result ->
                         if (result is TuningResult.Note) {
                             resultFreq = result.freq.toDouble()
                         }
