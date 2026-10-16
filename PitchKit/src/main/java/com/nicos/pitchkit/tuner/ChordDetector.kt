@@ -22,6 +22,9 @@ internal class ChordDetector(
     private val chromaHistory = ArrayDeque<DoubleArray>()
     private val chromaWindow = 3
 
+    // companion object: one place to tune it, and tests can reference it
+    private val BASS_ROOT_BONUS = 0.15   // reward chords whose root is the lowest note
+
     /**
      * Builds every recognizable chord by transposing each interval pattern to all
      * 12 roots. Chord templates are pitch-class based, so they're already
@@ -147,7 +150,7 @@ internal class ChordDetector(
             var score = inChord / t.pitches.size - 0.5 * outChord / (12 - t.pitches.size)
             // Bass bonus: reward chords whose root matches the detected bass note.
             if (bass >= 0 && t.pitches.isNotEmpty() && t.pitches[0] == bass) {
-                score += 0.15
+                score += BASS_ROOT_BONUS
             }
             if (t.name == currentChord) currentChordScore = score
             if (score > bestScore) {
