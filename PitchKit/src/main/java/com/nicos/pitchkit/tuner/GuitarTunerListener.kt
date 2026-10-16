@@ -46,7 +46,9 @@ import kotlinx.coroutines.flow.catch
  * permanently denied, and it opens Settings.
  * @param allowText label for the confirm button when the permission can still be requested.
  * @param dismissText label for the dismiss button.
- * @param onError new optional parameter, so existing callers keep compiling
+ * @param onError called once if the microphone can't be used (busy, revoked,
+ * device error). Detection stops after this; it restarts when [profile]
+ * changes or the composable re-enters composition.
  * @param onResult called with each detection result ([TuningResult.Note],
  * [TuningResult.Chord], or [TuningResult.Silence]).
  */
