@@ -27,6 +27,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.nicos.pitchkit.BuildConfig
+import com.nicos.pitchkit.tuner.extensions.findActivity
 import com.nicos.pitchkit.tuner.extensions.toPublic
 import com.nicos.pitchkit.tuner.models.InstrumentProfile
 import kotlinx.coroutines.flow.catch
@@ -62,7 +63,7 @@ fun GuitarTunerListener(
     onResult: (TuningResult) -> Unit,
 ) {
     val context = LocalContext.current
-    val activity = context as? Activity
+    val activity = context.findActivity()
 
     var granted by remember {
         mutableStateOf(
