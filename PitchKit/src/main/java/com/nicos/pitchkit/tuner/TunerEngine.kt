@@ -69,7 +69,7 @@ internal class TunerEngine(
                 return@start
             }
 
-            // TunerEngine: one FFT per frame, shared by the note/chord decision and chord detection
+            // One FFT per frame, shared by the note/chord decision and chord detection
             val mags = FFT.magnitudePadded(buf, padFactor = 2)
             // Decide single note vs chord by counting strongly-present pitch classes.
             val chroma = chordDetector.chroma(mags = mags)
