@@ -9,68 +9,99 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
+import kotlin.coroutines.cancellation.CancellationException
+
+/** Thrown (and reported via onError) when the microphone can't be used. */
+internal class AudioCaptureException(message: String) : RuntimeException(message)
 
 internal class AudioCapture(
-    val sampleRate: Int = 44100,        // 44.1 kHz — standard, captures up to ~22 kHz (Nyquist)
-    val bufferSize: Int = 8192,         // MUST be power of 2 for the FFT. ~186ms of audio.
+    val sampleRate: Int = 44100,
+    val bufferSize: Int = 8192,
 ) {
-    // Bigger buffer = better low-freq resolution (needed for
-    // low E at 82 Hz) but slower updates.
-    private var recorder: AudioRecord? = null
-    private var job: Job? = null   // the coroutine doing the reading, so we can cancel it
+    // The coroutine that owns the recorder. The recorder itself is no longer a field:
+    // it lives only inside this coroutine, so no other thread can touch it.
+    private var job: Job? = null
 
-    // The OS tells us the smallest buffer it will accept for these settings.
-    // If we request less than this, AudioRecord fails to initialize.
-    private val minBuf = AudioRecord.getMinBufferSize(
-        sampleRate,
-        AudioFormat.CHANNEL_IN_MONO,
-        AudioFormat.ENCODING_PCM_16BIT
-    )
+    @SuppressLint("MissingPermission") // caller must hold RECORD_AUDIO
+    fun start(
+        scope: CoroutineScope,
+        onError: (Throwable) -> Unit,      // new: report failures instead of crashing the host app
+        onBuffer: (FloatArray) -> Unit,
+    ) {
+        // Guard against double start: a second AudioRecord would leak and keep the mic locked
+        if (job?.isActive == true) return
 
-    @SuppressLint("MissingPermission") // caller must hold RECORD_AUDIO permission at runtime
-    fun start(scope: CoroutineScope, onBuffer: (FloatArray) -> Unit) {
-        // Internal OS buffer should be larger than our read chunk so audio isn't
-        // dropped if our processing thread briefly stalls. We double it for headroom.
-        val recordBuf = maxOf(minBuf, bufferSize * 2)
-
-        recorder = AudioRecord(
-            // MIC = raw mic. VOICE_RECOGNITION often disables OS-level noise
-            // suppression/AGC, which is BETTER for us — we want the untouched signal.
-            MediaRecorder.AudioSource.MIC,
-            sampleRate,
-            AudioFormat.CHANNEL_IN_MONO,        // guitar is mono; one channel is enough
-            AudioFormat.ENCODING_PCM_16BIT,     // 16-bit samples: values -32768..32767
-            recordBuf
-        )
-        recorder?.startRecording()
-
-        // All audio reading + processing happens on THIS background thread,
-        // never the UI thread (reading blocks until samples are available).
         job = scope.launch(Dispatchers.IO) {
-            val shortBuf = ShortArray(bufferSize)   // raw 16-bit samples from hardware
-            val floatBuf = FloatArray(bufferSize)   // normalized copy for DSP math
-            while (isActive) {
-                // read() blocks until it fills the buffer (or returns fewer samples).
-                val read = recorder?.read(shortBuf, 0, bufferSize) ?: 0
-                if (read > 0) {
-                    // Convert 16-bit int range to floating-point -1.0..1.0.
-                    // DSP algorithms are simpler and avoid overflow in float.
-                    for (i in 0 until read) {
-                        floatBuf[i] = shortBuf[i] / 32768f
-                    }
-                    // Hand a copy to the consumer (copy because we reuse floatBuf next loop).
-                    onBuffer(floatBuf.copyOf(read))
+            // Moved out of the field initializer: AudioRecord isn't touched until start(),
+            // which also lets TunerEngine be constructed in plain JVM unit tests
+            val minBuf = AudioRecord.getMinBufferSize(
+                sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT
+            )
+            // Negative values are error codes (ERROR / ERROR_BAD_VALUE), not sizes
+            if (minBuf <= 0) {
+                onError(AudioCaptureException("Unsupported audio config (minBuf=$minBuf)"))
+                return@launch
+            }
+
+            // The constructor itself can throw (e.g. SecurityException if permission was revoked)
+            val recorder = try {
+                AudioRecord(
+                    MediaRecorder.AudioSource.MIC,
+                    sampleRate,
+                    AudioFormat.CHANNEL_IN_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT,
+                    maxOf(minBuf, bufferSize * 2),   // 2× headroom so short stalls don't drop audio
+                )
+            } catch (e: Exception) {
+                onError(e)
+                return@launch
+            }
+
+            try {
+                // AudioRecord doesn't throw when the mic is busy; it silently ends up UNINITIALIZED,
+                // and startRecording() would then throw IllegalStateException
+                if (recorder.state != AudioRecord.STATE_INITIALIZED) {
+                    throw AudioCaptureException("AudioRecord failed to initialize (mic busy?)")
                 }
+                recorder.startRecording()
+                // startRecording() can also fail silently (e.g. another app holds the mic)
+                if (recorder.recordingState != AudioRecord.RECORDSTATE_RECORDING) {
+                    throw AudioCaptureException("AudioRecord failed to start recording")
+                }
+
+                val shortBuf = ShortArray(bufferSize)   // raw 16-bit samples
+                val floatBuf = FloatArray(bufferSize)   // normalized -1..1 for the DSP
+                while (isActive) {
+                    val read = recorder.read(shortBuf, 0, bufferSize)
+                    when {
+                        read > 0 -> {
+                            for (i in 0 until read) floatBuf[i] = shortBuf[i] / 32768f
+                            onBuffer(floatBuf.copyOf(read))   // copy: floatBuf is reused next loop
+                        }
+                        // Nothing yet: give other coroutines a chance instead of busy-looping
+                        read == 0 -> yield()
+                        // Negative = error (ERROR_DEAD_OBJECT after a headset change, etc.).
+                        // Before, this case was ignored and the loop spun at 100% CPU
+                        else -> throw AudioCaptureException("AudioRecord.read failed: $read")
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e                 // normal stop: let cancellation propagate, don't report it
+            } catch (e: Exception) {
+                onError(e)              // real failure → surfaced to the caller
+            } finally {
+                // Runs on the same thread that was reading, so release() can never
+                // run while read() is still blocked (a known native crash)
+                runCatching { recorder.stop() }   // stop() throws if recording never started
+                recorder.release()                // mandatory, or the mic stays locked
             }
         }
     }
 
     fun stop() {
-        job?.cancel()          // signal the loop to stop
+        // Only cancel; cleanup happens in the finally block above
+        job?.cancel()
         job = null
-        if (recorder == null) return   // already stopped — no-op
-        recorder?.stop()
-        recorder?.release()    // release hardware — mandatory, or the mic stays locked
-        recorder = null
     }
 }
