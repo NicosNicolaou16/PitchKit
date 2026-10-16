@@ -30,19 +30,19 @@ internal class ChordDetector(
      * per-instrument bit is the sharp/flat display preference.
      */
     private fun buildTemplates(): List<Template> {
-        val roots = arrayOf("C","C#","D","D#","E","F","F#","G","G#","A","A#","B")
-        val flat = mapOf("C#" to "Db","D#" to "Eb","F#" to "Gb","G#" to "Ab","A#" to "Bb")
+        val roots = arrayOf("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
+        val flat = mapOf("C#" to "Db", "D#" to "Eb", "F#" to "Gb", "G#" to "Ab", "A#" to "Bb")
         val list = mutableListOf<Template>()
         val qualities = listOf(
-            "" to intArrayOf(0,4,7),        // major triad
-            "m" to intArrayOf(0,3,7),       // minor triad
-            "7" to intArrayOf(0,4,7,10),    // dominant 7th
-            "m7" to intArrayOf(0,3,7,10),   // minor 7th
-            "maj7" to intArrayOf(0,4,7,11),
-            "sus2" to intArrayOf(0,2,7),
-            "sus4" to intArrayOf(0,5,7),
-            "dim" to intArrayOf(0,3,6),
-            "aug" to intArrayOf(0,4,8)
+            "" to intArrayOf(0, 4, 7),        // major triad
+            "m" to intArrayOf(0, 3, 7),       // minor triad
+            "7" to intArrayOf(0, 4, 7, 10),    // dominant 7th
+            "m7" to intArrayOf(0, 3, 7, 10),   // minor 7th
+            "maj7" to intArrayOf(0, 4, 7, 11),
+            "sus2" to intArrayOf(0, 2, 7),
+            "sus4" to intArrayOf(0, 5, 7),
+            "dim" to intArrayOf(0, 3, 6),
+            "aug" to intArrayOf(0, 4, 8)
         )
         for (r in roots.indices) {
             for ((suffix, ivals) in qualities) {
@@ -121,14 +121,14 @@ internal class ChordDetector(
      * temporal averaging → bass detection → template scoring with bass bonus →
      * hysteresis → result.
      */
-    fun detect(buffer: FloatArray, minScore: Double = 0.20): ChordResult? {
-        // Padded FFT computed once, reused for chroma + bass.
-        val mags = FFT.magnitudePadded(buffer, padFactor = 2)
+    fun detect(
+        mags: DoubleArray,
+        rawChroma: DoubleArray,
+        minScore: Double = 0.20
+    ): ChordResult? {
         val n = mags.size * 2
-
-        val rawChroma = chromaFrom(mags, n)
-        val c = smoothedChroma(rawChroma)
-        if (c.sum() < 0.5) return null      // essentially silence
+        val c = smoothedChroma(rawChroma)     // reuse the chroma the engine already computed
+        if (c.sum() < 0.5) return null
 
         val bass = detectBassPitchClass(mags, n)
 
@@ -147,7 +147,9 @@ internal class ChordDetector(
             if (bass >= 0 && t.pitches.isNotEmpty() && t.pitches[0] == bass) {
                 score += 0.15
             }
-            if (score > bestScore) { bestScore = score; best = t }
+            if (score > bestScore) {
+                bestScore = score; best = t
+            }
         }
 
         if (bestScore < minScore) return null      // reject weak matches
@@ -171,9 +173,7 @@ internal class ChordDetector(
         chromaHistory.clear()
     }
 
-    /** Public chroma accessor for the engine's note-vs-chord branch. */
-    fun chroma(buffer: FloatArray): DoubleArray {
-        val mags = FFT.magnitudePadded(buffer, padFactor = 2)
-        return chromaFrom(mags, n = mags.size * 2)
-    }
+    // ChordDetector: take the spectrum instead of raw audio
+    fun chroma(mags: DoubleArray): DoubleArray =
+        chromaFrom(mags, n = mags.size * 2)   // n = padded FFT size (mags holds n/2 bins)
 }
