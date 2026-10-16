@@ -34,7 +34,8 @@ import kotlinx.coroutines.flow.catch
 private const val TAG = "PitchKit"
 
 /**
- * Listens to the microphone and streams detected notes and chords as typed [TuningResult] values through [onResult]
+ * Listens to the microphone and streams detected notes and chords as typed
+ * [TuningResult] values through [onResult]
  * Handles the microphone permission internally (including the rationale popup and
  * the permanently-denied → Settings path), so the caller only handles results.
  *
