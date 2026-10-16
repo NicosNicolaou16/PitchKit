@@ -110,9 +110,8 @@ internal class TunerEngine(
         }
         history.addLast(key)
         if (history.size > 4) history.removeFirst()
-        val majority = history.groupingBy { it }.eachCount().maxByOrNull { it.value }
-        if (majority != null && majority.value >= requiredAgreement) {
-            lastStable = r
+        if (history.count { it == key } >= requiredAgreement) {
+            lastStable = r   // also refreshes cents/freq while the same note is held
         }
         return lastStable
     }
