@@ -14,9 +14,9 @@
 [![Static Badge](https://img.shields.io/badge/Developer_Profile-blue?style=for-the-badge&label=Google)](https://g.dev/nicolaou_nicos)
 
 A modern Android library for real-time **pitch and chord detection** straight from the device
-microphone, for tuners, chord trainers, practice and ear-training apps. It captures audio, analyzes
-the frequency spectrum, and returns the detected note or chord — all with a pure Kotlin DSP core and
-**no third-party audio libraries**. First-class Jetpack Compose support is included out of the box.
+microphone, for tuners, etc. It captures audio, analyzes the frequency spectrum, and returns the
+detected note or chord — all with a pure Kotlin DSP core and **no third-party audio libraries**.
+First-class Jetpack Compose support is included out of the box.
 
 ## 🌟 Features
 
