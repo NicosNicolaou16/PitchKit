@@ -54,7 +54,7 @@ internal class TunerEngine(
     private companion object {
         // 1.5 = +3.5 dB. Lower it (e.g. 1.3) if soft strums aren't detected;
         // raise it if sustained chords keep resetting
-        private const val ONSET_RATIO = 1.5
+        const val ONSET_RATIO = 1.5
     }
 
     fun start() = callbackFlow<Result> {

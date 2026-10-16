@@ -17,7 +17,6 @@ internal class ChordDetector(
 
     // Hysteresis state (prevents flicker between close chords like Am/F).
     private var currentChord: String? = null
-    private var currentScore = 0.0
 
     // Temporal-averaging state: rolling buffer of recent chroma vectors.
     private val chromaHistory = ArrayDeque<DoubleArray>()
