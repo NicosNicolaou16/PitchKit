@@ -80,7 +80,7 @@ THE BETA RELEASES MAY CONTAIN MAJOR OR MINOR CHANGES.
 
 ## 🚚 Migration Guide
 
-⚠️ **Breaking changes?** Check [Migration Guide](MIGRATION.md) before upgrading.
+ℹ️ **Upgrading?** Check the [Migration Guide](MIGRATION.md) for renamed and deprecated APIs.
 
 ---
 
