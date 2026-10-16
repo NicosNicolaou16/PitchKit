@@ -124,6 +124,8 @@ fun GuitarTunerListener(
                     if (BuildConfig.DEBUG) {
                         Log.w("PitchKit", "Audio capture failed", e)
                     }
+                    // Clear the display first: the last detected note is no longer live
+                    currentOnResult(TuningResult.Silence)
                     currentOnError(e)
                 }
                 .collect { result ->
