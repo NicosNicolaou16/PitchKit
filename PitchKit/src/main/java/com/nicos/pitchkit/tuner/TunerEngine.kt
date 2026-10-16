@@ -48,6 +48,15 @@ internal class TunerEngine(
     private var lastStable: Result = Result.Silence
     private val requiredAgreement = 2
 
+    // Previous frame's loudness, used to detect a new strum (sudden energy jump)
+    private var prevRms = 0.0
+
+    private companion object {
+        // 1.5 = +3.5 dB. Lower it (e.g. 1.3) if soft strums aren't detected;
+        // raise it if sustained chords keep resetting
+        private const val ONSET_RATIO = 1.5
+    }
+
     fun start() = callbackFlow<Result> {
         // A new recording session must not inherit anything from the previous one:
         highPass.reset()              // filter memory (prevIn/prevOut) → avoids a click on the first buffer
@@ -56,6 +65,7 @@ internal class TunerEngine(
         // otherwise the old note is shown until the first new majority
         lastStable =
             Result.Silence
+        prevRms = 0.0                 // no previous frame yet in this session
 
         capture.start(scope = this, onError = { close(it) }) { raw ->
             val buf = highPass.process(raw) // clean the signal first
@@ -64,6 +74,12 @@ internal class TunerEngine(
             var sumSq = 0.0
             for (s in buf) sumSq += s * s
             val rms = sqrt(sumSq / buf.size)
+
+            // New strum = energy jumps by 50%+ over the previous frame. Clear the chroma
+            // average so the old chord doesn't blend into the new one for ~2 frames.
+            if (prevRms > 0.0 && rms > prevRms * ONSET_RATIO) chordDetector.onNewStrum()
+            prevRms = rms
+
             if (rms < rmsGate) {
                 chordDetector.reset()   // clear hysteresis so the next chord starts clean
                 trySend(Result.Silence)

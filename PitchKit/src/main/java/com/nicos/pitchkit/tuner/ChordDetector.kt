@@ -137,6 +137,7 @@ internal class ChordDetector(
         // Score every template: reward chord tones, penalize non-chord tones.
         var best: Template? = null
         var bestScore = -1.0
+        var currentChordScore = -1.0   // how well the CURRENTLY shown chord fits THIS frame
         for (t in templates) {
             val set = t.pitches.toHashSet()
             var inChord = 0.0
@@ -149,6 +150,7 @@ internal class ChordDetector(
             if (bass >= 0 && t.pitches.isNotEmpty() && t.pitches[0] == bass) {
                 score += 0.15
             }
+            if (t.name == currentChord) currentChordScore = score
             if (score > bestScore) {
                 bestScore = score; best = t
             }
@@ -157,21 +159,29 @@ internal class ChordDetector(
         if (bestScore < minScore) return null      // reject weak matches
         val candidateName = best?.name ?: return null
 
-        // Hysteresis: only switch chords when the challenger is clearly better.
+        // Hysteresis: switch only when the challenger beats the current chord
+        // IN THIS SAME FRAME by a clear margin. Comparing against a stored score from
+        // earlier frames made low-scoring chords (Em, F) unable to replace high-scoring
+        // ones (D, C), so the old chord stayed on screen.
         val switchMargin = 0.08
-        if (candidateName == currentChord) {
-            currentScore = bestScore
-        } else if (bestScore > currentScore + switchMargin) {
+        if (currentChord == null ||
+            candidateName == currentChord ||
+            bestScore > currentChordScore + switchMargin
+        ) {
             currentChord = candidateName
-            currentScore = bestScore
         }
-        return currentChord?.let { ChordResult(it, currentScore) }
+        val shownScore = if (currentChord == candidateName) bestScore else currentChordScore
+        return currentChord?.let { ChordResult(it, shownScore) }
     }
 
     /** Clears rolling state; call on silence so the next chord starts fresh. */
     fun reset() {
         currentChord = null
-        currentScore = 0.0
+        chromaHistory.clear()
+    }
+
+    /** A new strum started: drop the previous chord's chroma from the average. */
+    fun onNewStrum() {
         chromaHistory.clear()
     }
 
