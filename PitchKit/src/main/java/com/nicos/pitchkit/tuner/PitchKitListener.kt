@@ -1,7 +1,6 @@
 package com.nicos.pitchkit.tuner
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -53,7 +52,7 @@ import kotlinx.coroutines.flow.catch
  * [TuningResult.Chord], or [TuningResult.Silence]).
  */
 @Composable
-fun GuitarTunerListener(
+fun PitchKitListener(
     profile: InstrumentProfile = InstrumentProfile.Guitar,
     titleText: String = "Microphone needed",
     permanentlyDeniedText: String = "Microphone access is blocked. Please enable it in Settings to tune your guitar.",

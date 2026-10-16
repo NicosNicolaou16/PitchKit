@@ -143,7 +143,7 @@ dependencyResolutionManagement {
 
 ### Step 1 - Add the Tuner Listener
 
-Drop `GuitarTunerListener` into any composable. It requests the microphone
+Drop `PitchKitListener` into any composable. It requests the microphone
 permission, starts detection, and streams a typed `TuningResult` back through the
 `onResult` callback. Detection stops automatically when the composable leaves the
 composition.
