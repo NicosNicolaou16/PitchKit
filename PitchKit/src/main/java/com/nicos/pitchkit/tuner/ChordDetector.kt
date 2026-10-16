@@ -147,7 +147,7 @@ internal class ChordDetector(
             var score = inChord / t.pitches.size - 0.5 * outChord / (12 - t.pitches.size)
             // Bass bonus: reward chords whose root matches the detected bass note.
             if (bass >= 0 && t.pitches.isNotEmpty() && t.pitches[0] == bass) {
-                score += 0.15
+                score += 0.12
             }
             if (t.name == currentChord) currentChordScore = score
             if (score > bestScore) {
