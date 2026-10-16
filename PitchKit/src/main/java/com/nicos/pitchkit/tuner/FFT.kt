@@ -92,7 +92,7 @@ internal object FFT {
         // Apply a Hann window to the REAL samples only (the padded tail stays zero).
         // Windowing tapers the buffer edges to reduce spectral leakage.
         for (i in 0 until base) {
-            val w = 0.5 * (1 - Math.cos(2 * Math.PI * i / (base - 1)))
+            val w = 0.5 * (1 - cos(2 * Math.PI * i / (base - 1)))
             re[i] = samples[i] * w
         }
 
