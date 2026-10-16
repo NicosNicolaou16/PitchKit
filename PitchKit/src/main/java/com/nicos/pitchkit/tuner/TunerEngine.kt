@@ -21,7 +21,11 @@ internal class TunerEngine(
     bufferSize: Int = 8192,
 ) {
     private val capture = AudioCapture(sampleRate, bufferSize)
-    private val yin = YinPitchDetector(sampleRate)
+    private val yin = YinPitchDetector(
+        sampleRate = sampleRate,
+        minFreq = profile.minFreq,
+        maxFreq = profile.maxFreq
+    )
 
     // Pass the profile down so the detector uses this instrument's frequency bounds.
     private val chordDetector = ChordDetector(sampleRate, profile)
@@ -49,21 +53,26 @@ internal class TunerEngine(
         highPass.reset()              // filter memory (prevIn/prevOut) → avoids a click on the first buffer
         chordDetector.reset()         // chord hysteresis + chroma history
         history.clear()               // debounce window
-        lastStable = Result.Silence   // otherwise the old note is shown until the first new majority
+        lastStable =
+            Result.Silence   // otherwise the old note is shown until the first new majority
 
         capture.start(scope = this, onError = { close(it) }) { raw ->
             val buf = highPass.process(raw) // clean the signal first
 
             // Energy gate: skip frames quieter than the profile's rmsGate.
-            val rms = sqrt(buf.map { (it * it).toDouble() }.average())
+            var sumSq = 0.0
+            for (s in buf) sumSq += s * s
+            val rms = sqrt(sumSq / buf.size)
             if (rms < rmsGate) {
                 chordDetector.reset()   // clear hysteresis so the next chord starts clean
                 trySend(Result.Silence)
                 return@start
             }
 
+            // TunerEngine: one FFT per frame, shared by the note/chord decision and chord detection
+            val mags = FFT.magnitudePadded(buf, padFactor = 2)
             // Decide single note vs chord by counting strongly-present pitch classes.
-            val chroma = chordDetector.chroma(buf)
+            val chroma = chordDetector.chroma(mags = mags)
             val strongPitches = chroma.count { it > 0.50 }
 
             val result = if (strongPitches <= 1) {
@@ -75,7 +84,8 @@ internal class TunerEngine(
                 } ?: Result.Silence
             } else {
                 // Polyphonic → chord template matching.
-                chordDetector.detect(buf)?.let { Result.Chord(it.name) } ?: Result.Silence
+                chordDetector.detect(mags = mags, rawChroma = chroma)?.let { Result.Chord(it.name) }
+                    ?: Result.Silence
             }
 
             trySend(smooth(result))
