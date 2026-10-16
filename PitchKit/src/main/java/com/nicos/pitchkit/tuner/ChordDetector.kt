@@ -116,10 +116,12 @@ internal class ChordDetector(
     data class ChordResult(val name: String, val score: Double)
 
     /**
-     * Detects the chord in the buffer.
-     * Pipeline: padded FFT (once) → interpolated + harmonic-weighted chroma →
-     * temporal averaging → bass detection → template scoring with bass bonus →
+     * Detects the chord from a precomputed spectrum and its raw chroma (both computed
+     * once per frame by TunerEngine).
+     * Pipeline: temporal averaging → bass detection → template scoring with bass bonus →
      * hysteresis → result.
+     * @param mags      magnitude spectrum from FFT.magnitudePadded(buffer, padFactor = 2).
+     * @param rawChroma 12-bin chroma from [chroma] for the same frame.
      */
     fun detect(
         mags: DoubleArray,
