@@ -22,7 +22,6 @@ internal class ChordDetector(
     private val chromaHistory = ArrayDeque<DoubleArray>()
     private val chromaWindow = 3
 
-    // ChordDetector.kt: delete L25–26 and add at the end of the class
     private companion object {
         // Compile-time constants: one place to tune the chord scoring
         const val BASS_ROOT_BONUS = 0.15   // reward chords whose root is the lowest note
