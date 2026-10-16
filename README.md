@@ -103,7 +103,7 @@ allprojects {
 ### Kotlin DSL
 
 ```kotlin
-implementation("com.github.NicosNicolaou16:PitchKit:1.0.1")
+implementation("com.github.NicosNicolaou16:PitchKit:1.0.2")
 ```
 
 ```kotlin
@@ -121,7 +121,7 @@ dependencyResolutionManagement {
 ```toml
 [versions]
 # other versions here...
-pitchKit = "1.0.1"
+pitchKit = "1.0.2"
  
 [libraries]
 # other libraries here...
