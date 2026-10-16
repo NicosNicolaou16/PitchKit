@@ -53,8 +53,9 @@ internal class TunerEngine(
         highPass.reset()              // filter memory (prevIn/prevOut) → avoids a click on the first buffer
         chordDetector.reset()         // chord hysteresis + chroma history
         history.clear()               // debounce window
+        // otherwise the old note is shown until the first new majority
         lastStable =
-            Result.Silence   // otherwise the old note is shown until the first new majority
+            Result.Silence
 
         capture.start(scope = this, onError = { close(it) }) { raw ->
             val buf = highPass.process(raw) // clean the signal first
