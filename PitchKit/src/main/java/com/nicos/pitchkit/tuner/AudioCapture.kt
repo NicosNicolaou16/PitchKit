@@ -47,7 +47,7 @@ internal class AudioCapture(
             // The constructor itself can throw (e.g. SecurityException if permission was revoked)
             val recorder = try {
                 AudioRecord(
-                    MediaRecorder.AudioSource.MIC,
+                    MediaRecorder.AudioSource.VOICE_RECOGNITION,
                     sampleRate,
                     AudioFormat.CHANNEL_IN_MONO,
                     AudioFormat.ENCODING_PCM_16BIT,
