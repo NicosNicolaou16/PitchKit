@@ -11,9 +11,9 @@ import com.nicos.pitchkit.tuner.models.InstrumentProfile
  */
 @Suppress("DeprecatedCallableAddReplaceWith")
 @Deprecated(
-    // No replaceWith on purpose: ReplaceWith rewrites the whole call and fills in
-    // every default value (including internal PitchKitDefaults, which wouldn't compile
-    // in the user's app). Since the signature is identical, renaming is all that's needed.
+    // No replaceWith on purpose: ReplaceWith rewrites the whole call and inlines every
+    // default value into the user's code. Since the signature is identical,
+    // renaming the call is all that's needed.
     message = "Renamed to PitchKitListener (same parameters). " +
             "Just rename the call. GuitarTunerListener will be removed in a future version.",
     level = DeprecationLevel.WARNING,
