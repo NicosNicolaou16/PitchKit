@@ -63,8 +63,7 @@ internal class TunerEngine(
         chordDetector.reset()         // chord hysteresis + chroma history
         history.clear()               // debounce window
         // otherwise the old note is shown until the first new majority
-        lastStable =
-            Result.Silence
+        lastStable = Result.Silence
         prevRms = 0.0                 // no previous frame yet in this session
 
         capture.start(scope = this, onError = { close(it) }) { raw ->
