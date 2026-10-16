@@ -2,53 +2,52 @@ package com.nicos.pitchkit.tuner
 
 internal class YinPitchDetector(
     private val sampleRate: Int,
+    minFreq: Double,                       // lowest pitch to look for (profile)
+    maxFreq: Double,                       // highest pitch to look for (profile)
     private val threshold: Double = 0.15   // lower = stricter; 0.10–0.15 works well for guitar
 ) {
+    // Lag (samples per period) = sampleRate / frequency → the frequency range becomes a lag range
+    private val tauMin = maxOf(2, (sampleRate / maxFreq).toInt())
+    private val tauMax = (sampleRate / minFreq).toInt() + 1   // guitar: ~631 instead of 4096
     /**
      * Detects the fundamental of a SINGLE note. YIN works in the time domain,
      * finding the period at which the signal best repeats itself — this resists the
      * octave errors that plague simple FFT peak-picking. Returns Hz, or -1.
      */
     fun detect(buffer: FloatArray): Float {
-        val tau = buffer.size / 2
-        val yin = DoubleArray(tau)
+        val window = buffer.size / 2
+        val maxTau = minOf(tauMax, buffer.size - window - 1)  // never read past the buffer
+        if (maxTau <= tauMin) return -1f
 
-        // 1. Difference function: how different is the signal from itself shifted by t?
-        for (t in 1 until tau) {
+        // 1. Difference function, only up to maxTau (the ~6× saving)
+        val yin = DoubleArray(maxTau + 1)
+        for (t in 1..maxTau) {
             var sum = 0.0
-            for (i in 0 until tau) {
-                val delta = buffer[i] - buffer[i + t]
-                sum += delta * delta
+            for (i in 0 until window) {
+                val d = buffer[i] - buffer[i + t]
+                sum += d * d
             }
             yin[t] = sum
         }
 
-        // 2. Cumulative mean normalization: lets us use a fixed threshold and avoids
-        //    the trivial t=0 dip.
+        // 2. Cumulative mean normalization
         yin[0] = 1.0
-        var runningSum = 0.0
-        for (t in 1 until tau) {
-            runningSum += yin[t]
-            yin[t] *= t / runningSum
+        var running = 0.0
+        for (t in 1..maxTau) {
+            running += yin[t]
+            yin[t] = if (running == 0.0) 1.0 else yin[t] * t / running   // digital silence → avoid NaN
         }
 
-        // 3. First dip below threshold = the fundamental (not a harmonic).
-        var tauEstimate = -1
-        var t = 2
-        while (t < tau) {
+        // 3. First dip below threshold, from tauMin: pitches above maxFreq (hiss) are ignored
+        var t = tauMin
+        while (t < maxTau) {
             if (yin[t] < threshold) {
-                while (t + 1 < tau && yin[t + 1] < yin[t]) t++
-                tauEstimate = t
-                break
+                while (t + 1 <= maxTau && yin[t + 1] < yin[t]) t++   // walk to the bottom of the dip
+                return (sampleRate / parabolicInterp(yin, t)).toFloat()
             }
             t++
         }
-        if (tauEstimate == -1) return -1f
-
-        // 4. Parabolic interpolation around the dip for SUB-SAMPLE period accuracy.
-        //    This is what makes the cents reading precise rather than quantized.
-        val betterTau = parabolicInterp(yin, tauEstimate)
-        return (sampleRate / betterTau).toFloat()
+        return -1f
     }
 
     /** Fits a parabola through 3 points around the dip to refine the minimum. */
