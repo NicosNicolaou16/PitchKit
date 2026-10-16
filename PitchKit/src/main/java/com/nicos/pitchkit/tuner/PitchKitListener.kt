@@ -180,17 +180,3 @@ fun PitchKitListener(
         )
     }
 }
-
-/**
- * Default popup texts, shared by [PitchKitListener] and the deprecated
- * [GuitarTunerListener], so the two can never show different texts.
- * Neutral wording: PitchKit is used for chord detection, practice apps, tuners, etc.
- */
-internal object PitchKitDefaults {
-    const val TITLE = "Microphone needed"
-    const val PERMANENTLY_DENIED = "Microphone access is blocked. Please enable it in Settings."
-    const val RATIONALE = "This app needs microphone access to detect notes and chords."
-    const val OPEN_SETTINGS = "Open Settings"
-    const val ALLOW = "Allow"
-    const val DISMISS = "Not now"
-}

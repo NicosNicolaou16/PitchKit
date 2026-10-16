@@ -21,12 +21,12 @@ import com.nicos.pitchkit.tuner.models.InstrumentProfile
 @Composable
 fun GuitarTunerListener(
     profile: InstrumentProfile = InstrumentProfile.Guitar,
-    titleText: String = PitchKitDefaults.TITLE,
-    permanentlyDeniedText: String = PitchKitDefaults.PERMANENTLY_DENIED,
-    rationaleText: String = PitchKitDefaults.RATIONALE,
-    openSettingsText: String = PitchKitDefaults.OPEN_SETTINGS,
-    allowText: String = PitchKitDefaults.ALLOW,
-    dismissText: String = PitchKitDefaults.DISMISS,
+    titleText: String = "Microphone needed",
+    permanentlyDeniedText: String = "Microphone access is blocked. Please enable it in Settings to tune your guitar.",
+    rationaleText: String = "This app needs microphone access to detect notes and chords from your guitar.",
+    openSettingsText: String = "Open Settings",
+    allowText: String = "Allow",
+    dismissText: String = "Not now",
     onError: (Throwable) -> Unit = {},
     onResult: (TuningResult) -> Unit,
 ) {
