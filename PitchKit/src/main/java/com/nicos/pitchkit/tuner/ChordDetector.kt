@@ -175,7 +175,7 @@ internal class ChordDetector(
         chromaHistory.clear()
     }
 
-    // ChordDetector: take the spectrum instead of raw audio
+    /** 12-bin chroma for the note-vs-chord decision, from a precomputed spectrum. */
     fun chroma(mags: DoubleArray): DoubleArray =
         chromaFrom(mags, n = mags.size * 2)   // n = padded FFT size (mags holds n/2 bins)
 }
