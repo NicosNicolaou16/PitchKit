@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nicos.pitchkit.tuner.GuitarTunerListener
 import com.nicos.pitchkit.tuner.PitchKitListener
 import com.nicos.pitchkit.tuner.TuningResult
 import com.nicos.pitchkitexample.helpers.isPegActive
