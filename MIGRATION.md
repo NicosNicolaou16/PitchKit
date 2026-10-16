@@ -5,7 +5,9 @@
 > [!NOTE]
 > `GuitarTunerListener` is **deprecated** and renamed to `PitchKitListener`.
 > The old name still works in 1.0.2 but will be removed in a future version.
-> In Android Studio, place the cursor on the call and press Alt+Enter → "Replace with PitchKitListener".
+> The parameters are identical, so just rename the call. To update a whole project at once,
+> use **Edit → Find → Replace in Files** (Ctrl+Shift+R / ⌘⇧R) and replace
+> `GuitarTunerListener` with `PitchKitListener`.
 
 ```kotlin
 // Before
