@@ -76,8 +76,11 @@ with a robust set of features:
 
 THE BETA RELEASES MAY CONTAIN MAJOR OR MINOR CHANGES.
 
-> [!TIP]
-> Upgrading from an older version? See the [Migration Guide](MIGRATION.md).
+---
+
+## 🚚 Migration Guide
+
+⚠️ **Breaking changes?** Check [Migration Guide](MIGRATION.md) before upgrading.
 
 ---
 
