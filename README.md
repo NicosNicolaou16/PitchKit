@@ -231,7 +231,8 @@ PitchKitListener(profile = dropD) { result ->
 
 ### Step 4 - Customize the Permission Popup (Optional)
 
-All popup strings are parameters, so you can localize or rebrand them:
+All popup strings are parameters, so you can localize or rebrand them.
+Use `onError` to react when the microphone can't be used.
 
 ```kotlin
 PitchKitListener(
