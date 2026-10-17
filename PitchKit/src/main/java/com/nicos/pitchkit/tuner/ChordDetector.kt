@@ -17,11 +17,16 @@ internal class ChordDetector(
 
     // Hysteresis state (prevents flicker between close chords like Am/F).
     private var currentChord: String? = null
-    private var currentScore = 0.0
 
     // Temporal-averaging state: rolling buffer of recent chroma vectors.
     private val chromaHistory = ArrayDeque<DoubleArray>()
     private val chromaWindow = 3
+
+    private companion object {
+        // Compile-time constants: one place to tune the chord scoring
+        const val BASS_ROOT_BONUS = 0.15   // reward chords whose root is the lowest note
+        const val SWITCH_MARGIN = 0.08     // how much a new chord must beat the current one
+    }
 
     /**
      * Builds every recognizable chord by transposing each interval pattern to all
@@ -30,19 +35,19 @@ internal class ChordDetector(
      * per-instrument bit is the sharp/flat display preference.
      */
     private fun buildTemplates(): List<Template> {
-        val roots = arrayOf("C","C#","D","D#","E","F","F#","G","G#","A","A#","B")
-        val flat = mapOf("C#" to "Db","D#" to "Eb","F#" to "Gb","G#" to "Ab","A#" to "Bb")
+        val roots = arrayOf("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
+        val flat = mapOf("C#" to "Db", "D#" to "Eb", "F#" to "Gb", "G#" to "Ab", "A#" to "Bb")
         val list = mutableListOf<Template>()
         val qualities = listOf(
-            "" to intArrayOf(0,4,7),        // major triad
-            "m" to intArrayOf(0,3,7),       // minor triad
-            "7" to intArrayOf(0,4,7,10),    // dominant 7th
-            "m7" to intArrayOf(0,3,7,10),   // minor 7th
-            "maj7" to intArrayOf(0,4,7,11),
-            "sus2" to intArrayOf(0,2,7),
-            "sus4" to intArrayOf(0,5,7),
-            "dim" to intArrayOf(0,3,6),
-            "aug" to intArrayOf(0,4,8)
+            "" to intArrayOf(0, 4, 7),        // major triad
+            "m" to intArrayOf(0, 3, 7),       // minor triad
+            "7" to intArrayOf(0, 4, 7, 10),    // dominant 7th
+            "m7" to intArrayOf(0, 3, 7, 10),   // minor 7th
+            "maj7" to intArrayOf(0, 4, 7, 11),
+            "sus2" to intArrayOf(0, 2, 7),
+            "sus4" to intArrayOf(0, 5, 7),
+            "dim" to intArrayOf(0, 3, 6),
+            "aug" to intArrayOf(0, 4, 8)
         )
         for (r in roots.indices) {
             for ((suffix, ivals) in qualities) {
@@ -116,25 +121,28 @@ internal class ChordDetector(
     data class ChordResult(val name: String, val score: Double)
 
     /**
-     * Detects the chord in the buffer.
-     * Pipeline: padded FFT (once) → interpolated + harmonic-weighted chroma →
-     * temporal averaging → bass detection → template scoring with bass bonus →
+     * Detects the chord from a precomputed spectrum and its raw chroma (both computed
+     * once per frame by TunerEngine).
+     * Pipeline: temporal averaging → bass detection → template scoring with bass bonus →
      * hysteresis → result.
+     * @param mags      magnitude spectrum from FFT.magnitudePadded(buffer, padFactor = 2).
+     * @param rawChroma 12-bin chroma from [chroma] for the same frame.
      */
-    fun detect(buffer: FloatArray, minScore: Double = 0.20): ChordResult? {
-        // Padded FFT computed once, reused for chroma + bass.
-        val mags = FFT.magnitudePadded(buffer, padFactor = 2)
+    fun detect(
+        mags: DoubleArray,
+        rawChroma: DoubleArray,
+        minScore: Double = 0.20
+    ): ChordResult? {
         val n = mags.size * 2
-
-        val rawChroma = chromaFrom(mags, n)
-        val c = smoothedChroma(rawChroma)
-        if (c.sum() < 0.5) return null      // essentially silence
+        val c = smoothedChroma(rawChroma)     // reuse the chroma the engine already computed
+        if (c.sum() < 0.5) return null
 
         val bass = detectBassPitchClass(mags, n)
 
         // Score every template: reward chord tones, penalize non-chord tones.
         var best: Template? = null
         var bestScore = -1.0
+        var currentChordScore = -1.0   // how well the CURRENTLY shown chord fits THIS frame
         for (t in templates) {
             val set = t.pitches.toHashSet()
             var inChord = 0.0
@@ -145,35 +153,43 @@ internal class ChordDetector(
             var score = inChord / t.pitches.size - 0.5 * outChord / (12 - t.pitches.size)
             // Bass bonus: reward chords whose root matches the detected bass note.
             if (bass >= 0 && t.pitches.isNotEmpty() && t.pitches[0] == bass) {
-                score += 0.15
+                score += BASS_ROOT_BONUS
             }
-            if (score > bestScore) { bestScore = score; best = t }
+            if (t.name == currentChord) currentChordScore = score
+            if (score > bestScore) {
+                bestScore = score; best = t
+            }
         }
 
         if (bestScore < minScore) return null      // reject weak matches
         val candidateName = best?.name ?: return null
 
-        // Hysteresis: only switch chords when the challenger is clearly better.
-        val switchMargin = 0.08
-        if (candidateName == currentChord) {
-            currentScore = bestScore
-        } else if (bestScore > currentScore + switchMargin) {
+        // Hysteresis: switch only when the challenger beats the current chord
+        // IN THIS SAME FRAME by a clear margin. Comparing against a stored score from
+        // earlier frames made low-scoring chords (Em, F) unable to replace high-scoring
+        // ones (D, C), so the old chord stayed on screen.
+        if (currentChord == null ||
+            candidateName == currentChord ||
+            bestScore > currentChordScore + SWITCH_MARGIN
+        ) {
             currentChord = candidateName
-            currentScore = bestScore
         }
-        return currentChord?.let { ChordResult(it, currentScore) }
+        val shownScore = if (currentChord == candidateName) bestScore else currentChordScore
+        return currentChord?.let { ChordResult(it, shownScore) }
     }
 
     /** Clears rolling state; call on silence so the next chord starts fresh. */
     fun reset() {
         currentChord = null
-        currentScore = 0.0
         chromaHistory.clear()
     }
 
-    /** Public chroma accessor for the engine's note-vs-chord branch. */
-    fun chroma(buffer: FloatArray): DoubleArray {
-        val mags = FFT.magnitudePadded(buffer, padFactor = 2)
-        return chromaFrom(mags, n = mags.size * 2)
+    /** A new strum started: drop the previous chord's chroma from the average. */
+    fun onNewStrum() {
+        chromaHistory.clear()
     }
+
+    /** 12-bin chroma for the note-vs-chord decision, from a precomputed spectrum. */
+    fun chroma(mags: DoubleArray): DoubleArray =
+        chromaFrom(mags, n = mags.size * 2)   // n = padded FFT size (mags holds n/2 bins)
 }

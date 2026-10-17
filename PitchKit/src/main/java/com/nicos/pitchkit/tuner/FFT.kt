@@ -67,14 +67,6 @@ internal object FFT {
     }
 
     /**
-     * Plain magnitude spectrum (no padding). Kept for callers that don't need
-     * the finer resolution. Uses the largest power of 2 that fits the input.
-     */
-    fun magnitude(samples: FloatArray): DoubleArray {
-        return magnitudePadded(samples, padFactor = 1)
-    }
-
-    /**
      * Zero-padded magnitude spectrum.
      * Zero-padding does NOT add real information, but it INTERPOLATES the spectrum
      * onto a finer frequency grid, which helps resolve closely-spaced LOW notes
@@ -92,7 +84,7 @@ internal object FFT {
         // Apply a Hann window to the REAL samples only (the padded tail stays zero).
         // Windowing tapers the buffer edges to reduce spectral leakage.
         for (i in 0 until base) {
-            val w = 0.5 * (1 - Math.cos(2 * Math.PI * i / (base - 1)))
+            val w = 0.5 * (1 - cos(2 * Math.PI * i / (base - 1)))
             re[i] = samples[i] * w
         }
 

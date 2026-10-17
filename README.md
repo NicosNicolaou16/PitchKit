@@ -13,11 +13,10 @@
 [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/@nicosnicolaou16)
 [![Static Badge](https://img.shields.io/badge/Developer_Profile-blue?style=for-the-badge&label=Google)](https://g.dev/nicolaou_nicos)
 
-A modern and easy-to-use Android library for real-time guitar tuning and chord
-detection straight from the device microphone. It captures audio, analyzes the
-frequency spectrum, and returns the detected note or chord — all with a pure
-Kotlin DSP core and **no third-party audio libraries**. First-class Jetpack
-Compose support is included out of the box.
+A modern Android library for real-time **pitch and chord detection** straight from the device
+microphone, for tuners, etc. It captures audio, analyzes the frequency spectrum, and returns the
+detected note or chord — all with a pure Kotlin DSP core and **no third-party audio libraries**.
+First-class Jetpack Compose support is included out of the box.
 
 ## 🌟 Features
 
@@ -67,8 +66,9 @@ with a robust set of features:
 - **JDK Version**: `17`
 - **Target SDK**: `37`
 - **Minimum SDK**: `28`
-- **Kotlin Version**: `2.4.10`
-- **Gradle Version**: `9.3.1`
+- **Kotlin Version**: `2.4.21`
+- **AGP Version**: `9.4.1`
+- **Gradle Version**: `9.8.1`
 - **Build Tool Version**: `37`
 
 ---
@@ -76,7 +76,13 @@ with a robust set of features:
 ## !! IMPORTANT NOTE
 
 THE BETA RELEASES MAY CONTAIN MAJOR OR MINOR CHANGES.
- 
+
+---
+
+## 🚚 Migration Guide
+
+ℹ️ **Upgrading?** Check the [Migration Guide](MIGRATION.md) for renamed and deprecated APIs.
+
 ---
 
 ## ⚙️ Basic Configuration (Gradle Dependencies)
@@ -84,7 +90,7 @@ THE BETA RELEASES MAY CONTAIN MAJOR OR MINOR CHANGES.
 ### Groovy
 
 ```groovy
-implementation 'com.github.NicosNicolaou16:PitchKit:1.0.1'
+implementation 'com.github.NicosNicolaou16:PitchKit:1.0.2'
 ```
 
 ```groovy
@@ -98,7 +104,7 @@ allprojects {
 ### Kotlin DSL
 
 ```kotlin
-implementation("com.github.NicosNicolaou16:PitchKit:1.0.1")
+implementation("com.github.NicosNicolaou16:PitchKit:1.0.2")
 ```
 
 ```kotlin
@@ -116,7 +122,7 @@ dependencyResolutionManagement {
 ```toml
 [versions]
 # other versions here...
-pitchKit = "1.0.1"
+pitchKit = "1.0.2"
  
 [libraries]
 # other libraries here...
@@ -141,9 +147,9 @@ dependencyResolutionManagement {
 
 ## 🚀 Compose Configuration
 
-### Step 1 - Add the Tuner Listener
+### Step 1 - Add the PitchKit Listener
 
-Drop `GuitarTunerListener` into any composable. It requests the microphone
+Drop `PitchKitListener` into any composable. It requests the microphone
 permission, starts detection, and streams a typed `TuningResult` back through the
 `onResult` callback. Detection stops automatically when the composable leaves the
 composition.
@@ -153,7 +159,7 @@ composition.
 fun TunerScreen() {
     var resultNote by remember { mutableStateOf("-") }
  
-    GuitarTunerListener { result ->
+    PitchKitListener { result ->
         resultNote = when (result) {
             is TuningResult.Note -> result.name
             is TuningResult.Chord -> result.name
@@ -171,7 +177,7 @@ fun TunerScreen() {
 the numeric data (frequency, cents) however you like:
 
 ```kotlin
-GuitarTunerListener { result ->
+PitchKitListener { result ->
     when (result) {
         is TuningResult.Note -> {
             // result.name  -> "E", "A#", ...
@@ -190,12 +196,12 @@ GuitarTunerListener { result ->
 
 ### Step 3 - Choose an Instrument (Optional)
 
-By default the tuner is configured for a standard 6-string guitar. Pass a
+By default, the tuner is configured for a standard 6-string guitar. Pass a
 different `InstrumentProfile` to tune another instrument:
 
 ```kotlin
 // Built-in presets: InstrumentProfile.Guitar (default), .Ukulele, .Bass
-GuitarTunerListener(profile = InstrumentProfile.Ukulele) { result ->
+PitchKitListener(profile = InstrumentProfile.Ukulele) { result ->
     //...your code here
 }
 ```
@@ -219,23 +225,28 @@ val dropD = InstrumentProfile(
     ),
 )
  
-GuitarTunerListener(profile = dropD) { result ->
+PitchKitListener(profile = dropD) { result ->
     //...your code here
 }
 ```
 
 ### Step 4 - Customize the Permission Popup (Optional)
 
-All popup strings are parameters, so you can localize or rebrand them:
+All popup strings are parameters, so you can localize or rebrand them.
+Use `onError` to react when the microphone can't be used.
 
 ```kotlin
-GuitarTunerListener(
+PitchKitListener(
     titleText = "Microphone needed",
     rationaleText = "This app needs microphone access to detect notes and chords.",
     permanentlyDeniedText = "Microphone access is blocked. Please enable it in Settings.",
     allowText = "Allow",
     openSettingsText = "Open Settings",
     dismissText = "Not now",
+    onError = { e ->
+        // Mic busy (another app recording), permission revoked, or AudioRecord failed.
+        // The listener has already sent TuningResult.Silence before calling this.
+    },
     onResult = { result ->
         //...your code here
     }
@@ -253,7 +264,7 @@ fun PitchKitDemo() {
     // ==========================================
     // 1. Start the tuner
     // ==========================================
-    GuitarTunerListener(profile = InstrumentProfile.Guitar) { result ->
+    PitchKitListener(profile = InstrumentProfile.Guitar) { result ->
         when (result) {
             is TuningResult.Note -> resultFreq = result.freq.toDouble()
             else -> resultFreq = 0.0 // clear freq on chord/silence
