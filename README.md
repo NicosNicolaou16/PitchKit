@@ -195,7 +195,7 @@ PitchKitListener { result ->
 
 ### Step 3 - Choose an Instrument (Optional)
 
-By default the tuner is configured for a standard 6-string guitar. Pass a
+By default, the tuner is configured for a standard 6-string guitar. Pass a
 different `InstrumentProfile` to tune another instrument:
 
 ```kotlin
