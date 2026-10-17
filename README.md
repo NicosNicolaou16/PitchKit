@@ -241,6 +241,10 @@ PitchKitListener(
     allowText = "Allow",
     openSettingsText = "Open Settings",
     dismissText = "Not now",
+    onError = { e ->
+        // Mic busy (another app recording), permission revoked, or AudioRecord failed.
+        // The listener has already sent TuningResult.Silence before calling this.
+    },
     onResult = { result ->
         //...your code here
     }
